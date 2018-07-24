@@ -88,17 +88,25 @@ impl Dicecoins {
                 sum += self.roll();
             }
         }
+        else {
+            for _x in 0..MAX_ROLL_COUNT { //Roll to the limit instead
+                sum += self.roll();
+            }
+        }
 
         sum
     }
 
     //Rolls the dice the indicated number of times and returns the integer sum
     pub fn roll_max_x(&self, x_dice: u32) -> u64 {
-        let mut sum = 0;
+        let sum;
 
         //Reject roll request greater than 9,999 so we can guarantee max return is 99,990,000
-        if x_dice < MAX_ROLL_COUNT {
-                sum = self.max_value as u64 * x_dice as u64;
+        if x_dice <= MAX_ROLL_COUNT {
+            sum = self.max_value as u64 * x_dice as u64;
+        }
+        else {
+            sum = self.max_value as u64 * MAX_ROLL_COUNT as u64;
         }
 
         sum
@@ -106,23 +114,28 @@ impl Dicecoins {
 
     //Rolls the dice the indicated number of times and returns the integer sum
     pub fn roll_avg_x(&self, x_dice: u32) -> u64 {
-        let mut sum = 0;
+        let sum;
 
         //Reject roll request greater than 9,999 so we can guarantee max return is 99,990,000
-        if x_dice < MAX_ROLL_COUNT {
-                sum = self.avg_value as u64  * x_dice as u64;
+        if x_dice <= MAX_ROLL_COUNT {
+            sum = self.avg_value as u64  * x_dice as u64;
         }
-
+        else {
+            sum = self.avg_value as u64 * MAX_ROLL_COUNT as u64;
+        }
         sum
     }
 
     //Rolls the dice the indicated number of times and returns the integer sum
     pub fn roll_min_x(&self, x_dice: u32) -> u64 {
-        let mut sum = 0;
+        let sum;
 
         //Reject roll request greater than 9,999 so we can guarantee max return is 99,990,000
-        if x_dice < MAX_ROLL_COUNT {
-                sum = self.min_value as u64 * x_dice as u64;
+        if x_dice <= MAX_ROLL_COUNT {
+            sum = self.min_value as u64 * x_dice as u64;
+        }
+        else {
+            sum = self.min_value as u64 * MAX_ROLL_COUNT as u64;
         }
 
         sum
@@ -141,5 +154,14 @@ impl Dicecoins {
         index = thread_rng().gen_range(0, self.face_count) as usize; //Which face was rolled?
         //u32 to u64 is always ok
         self.face_values[index] as u64
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Dicecoins;
+    #[test]
+    fn dicecoin_declare() {
+        assert_eq!(1, Dicecoins::new(vec![1,2,3,4]).roll_min_x(1)); //<----Why not in scope????
     }
 }

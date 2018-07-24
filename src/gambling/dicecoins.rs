@@ -4,8 +4,9 @@
 //this should be fine as long as you aren't passing insane numbers
 
 use rand::{thread_rng,Rng};
+use std::result::{Result, Err};
 
-pub enum DiceType {
+/*pub enum DiceType {
     D2,
     D4,
     D6,
@@ -14,28 +15,27 @@ pub enum DiceType {
     D10P,
     D12,
     D20,
-}
+}*/
 
 pub struct Dicecoins {
-    dice_type: DiceType,
-    face_count: u32,
+//    dice_type: DiceType,
+    face_count: usize,
     face_values: Vec<u32>,
 
 }
 
 impl Dicecoins {
-    pub fn new(&self, d_type: DiceType, face_vals: Vec<u32>) -> Dicecoins {
+    pub fn new(/*d_type: DiceType,*/ face_vals: Vec<u32>) -> Result<Dicecoins, Err> {
         let mut retval;
 
-        //Count number of entries in face_vals and reject if not 2, 4, 6, 8, 10, 12, or 20
-        if self.valid_dice(self.d_type, face_values){
-            //
-        }
-        else{
-            retval = None;
-        }
-
-
+        //Reject if not a valid dice type 2, 4, 6, 8, 10, 12, or 20
+      //  if Dicecoins::valid_dice(d_type, face_vals){
+            retval = Dicecoins{face_count: face_vals.len(),face_values: face_vals};
+      //  }
+       // else{
+      //      retval = Err("DiceType and Vec length do not match");
+       // }
+//
         retval
     }
 
@@ -44,7 +44,7 @@ impl Dicecoins {
         let mut sum = 0;
 
         //Reject roll request greater than 9,999 or something is amiss
-        if counter < 9999 && self.valid_dice(self.dice_type, self.face_values) {
+        if counter < 9999 {
             for x in 0..counter {
                 sum += self.roll();
             }
@@ -55,18 +55,19 @@ impl Dicecoins {
 
     //Rolls a dicecoin
     fn roll(&self) -> u64 {
-        let dice_type: DiceType = self.dice_type;
+    //    let dice_type: DiceType = self.dice_type;
         let face_vals: Vec<u32> = self.face_values;
         let index; //this is used to pick a face
 
+        //DEBUG: one off error?
         //This cast is ok because face_count will never be higher than 20
-        index = thread_rng().gen_range(1, self.face_count) as usize; //Which face was rolled?
+        index = thread_rng().gen_range(1, self.face_count+1) as usize; //Which face was rolled?
         //u32 to u64 is always ok
         face_vals[index] as u64
     }
-
+/*
     //Debugging
-    fn valid_dice (&self, d_type: DiceType, d_vals: Vec<u32>) -> bool {
+    fn valid_dice (d_type: DiceType, d_vals: Vec<u32>) -> bool {
         let flag;
 
         match d_type {
@@ -113,5 +114,5 @@ impl Dicecoins {
             _ => flag = false,
         }
         false
-    }
+    }*/
 }

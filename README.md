@@ -92,5 +92,5 @@ beginners and as little effort as possible is needed to get up and running with 
 
 -Dicecoin gambling game
 
--Dicecoin STL file upload
+-Dicecoin STL file
 

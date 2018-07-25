@@ -21,42 +21,85 @@ extern crate ggez;
 mod gambling;
 //import the Dicecoins namespace
 //use gambling::dicecoins::Dicecoins;
-use ggez::conf::{WindowSetup};
+use ggez::conf::{WindowSetup, WindowMode, NumSamples, FullscreenType};
 //use ggez::event;
 use ggez::{ContextBuilder, GameResult};
 //use ggez::graphics;
 //use ggez::event::*;
-//use std::env;
-//use std::path;
+use std::env;
+use std::path;
 //use std::time;
 
 fn main() {
-/*
+    /*
     let c = conf::Conf::new();
     let ctx = &mut Context::load_from_conf("helloworld", "ggez", c).unwrap();
     graphics::set_default_filter(ctx, graphics::FilterMode::Nearest);
+// We add the CARGO_MANIFEST_DIR/resources do the filesystems paths so
+// we we look in the cargo project for files.
+  if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+      let mut path = path::PathBuf::from(manifest_dir);
+      path.push("assets");
+      println!("{:?}", path);
+  }
 */
     //We want to set the Window settings here. The user could be given
     //the option to set these
-    let settings = WindowSetup{title: "ee".to_string(), }.title();
-    let ctx = ContextBuilder::new("mehens_portable_casino", "Mushu");
+    let w_setup = WindowSetup {
+        title: "ee".to_string(),
+        icon: "assets/placeholder_icon.png".to_string(),
+        resizable: false,
+        allow_highdpi: true,
+        samples: NumSamples::One,
+    }; //anti-aliasing
 
+    //Basic window settings, can be changed ingame
+    let w_mode = WindowMode {
+        width: 800,
+        height: 600,
+        borderless: false,
+        fullscreen_type: FullscreenType::Off,
+        vsync: true,
+        min_width: 0, //Don't care about this unless we have resizeable
+        max_width: 0,
+        min_height: 0,
+        max_height: 0,
+    };
+    /*
+        let c = conf::Conf::new();
+        let ctx = &mut Context::load_from_conf("helloworld", "ggez", c).unwrap();
+        graphics::set_default_filter(ctx, graphics::FilterMode::Nearest);
+        */
 
     // We add the CARGO_MANIFEST_DIR/resources do the filesystems paths so
     // we we look in the cargo project for files.
-  /*  if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-        let mut path = path::PathBuf::from(manifest_dir);
-        path.push("assets");
-        println!("{:?}", path);
-        ctx.filesystem.mount(&path, true);
-    }
+      if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+          let mut path = path::PathBuf::from(manifest_dir);
+          path.push("assets");
+          println!("{:?}", path);
+      }
+
+    let ctx = ContextBuilder::new("mehens_portable_casino", "Mushu").
+                                window_setup(w_setup).
+                                window_mode(w_mode).
+                                add_resource_path(&path);
 
 
-    let state = &mut MainState::new(ctx).unwrap();
-    if let Err(e) = event::run(ctx, state) {
-        println!("Error encountered: {}", e);
-    } else {
-        println!("Game exited cleanly.");
-    }
-    */
+  // We add the CARGO_MANIFEST_DIR/resources do the filesystems paths so
+  // we we look in the cargo project for files.
+/*  if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+      let mut path = path::PathBuf::from(manifest_dir);
+      path.push("assets");
+      println!("{:?}", path);
+      ctx.filesystem.mount(&path, true);
+  }
+
+
+  let state = &mut MainState::new(ctx).unwrap();
+  if let Err(e) = event::run(ctx, state) {
+      println!("Error encountered: {}", e);
+  } else {
+      println!("Game exited cleanly.");
+  }
+  */
 }

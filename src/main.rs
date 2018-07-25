@@ -16,19 +16,40 @@
 
 //Go find the crate via what is specified in Cargo.toml
 extern crate rand;
-
+extern crate ggez;
 //We need to import the gambling package
 mod gambling;
 //import the Dicecoins namespace
 use gambling::dicecoins::Dicecoins;
+use ggez::conf;
+use ggez::event;
+use ggez::{Context, GameResult};
+use ggez::graphics;
+use ggez::event::*;
+use std::env;
+use std::path;
+use std::time;
 
 fn main() {
 
-    let d4 = Dicecoins::new(vec![1,2,3,4]);
-    let d2 = Dicecoins::new(vec![4,2,1,3]);
+    let c = conf::Conf::new();
+    let ctx = &mut Context::load_from_conf("helloworld", "ggez", c).unwrap();
+    graphics::set_default_filter(ctx, graphics::FilterMode::Nearest);
 
-    println!("Hello, world! Roll a standard d{}... result: {}", d4.face_count(), d4.roll_x(1));
-    println!("Hello, world! Roll a standard d{}... max result: {}", d4.face_count(), d4.roll_max_x(1));
-    println!("Hello, world! Roll a standard d{}... avg result: {}", d2.face_count(), d2.roll_avg_x(1));
-    println!("Hello, world! Roll a standard d{}... min result: {}", d4.face_count(), d4.roll_min_x(1));
+    // We add the CARGO_MANIFEST_DIR/resources do the filesystems paths so
+    // we we look in the cargo project for files.
+    if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+        let mut path = path::PathBuf::from(manifest_dir);
+        path.push("assets");
+        println!("{:?}", path);
+        ctx.filesystem.mount(&path, true);
+    }
+
+
+    let state = &mut MainState::new(ctx).unwrap();
+    if let Err(e) = event::run(ctx, state) {
+        println!("Error encountered: {}", e);
+    } else {
+        println!("Game exited cleanly.");
+    }
 }

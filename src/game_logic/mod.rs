@@ -19,4 +19,5 @@ Declaring our files as 'pub mod' here allows them to be 'use'd outside of here. 
 for example.
 */
 
-pub mod dicecoins;
+//Controls the state of the game. I.E. advances the game from one scene to the next
+pub mod main_state;

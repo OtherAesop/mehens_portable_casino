@@ -1,3 +1,19 @@
+// mehens_portable_casino. A gambling game made using ggez and Dicecoin
+// Copyright (C) 2018  Ian L. Gore
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/gpl.html>.
+
 //This file defines how a Dicecoin is made, and its functions.
 //Note the spirit of Dicecoin is based off standard RPG dice
 //but higher is allowed.
@@ -41,7 +57,7 @@ pub struct Dicecoins {
 impl Dicecoins {
     pub fn new(mut face_vals: Vec<u32>) -> Self {
         let mut min = 1; //compiler bug, initializing these here but never reading them should throw warning
-        let mut max = 1;
+        let mut max = 1; //since it is possible that they will never be read
         let mut avg = 0;
 
         if face_vals.len() == 0 { //No 0 sided dice allowed
@@ -108,7 +124,7 @@ impl Dicecoins {
     pub fn roll_max_x(&self, x_dice: u32) -> u64 {
         let sum;
 
-        //Reject roll request greater than 9,999 so we can guarantee max return is 99,990,000
+        //Cap roll request greater than 9,999 so we can guarantee max return is 99,990,000
         if x_dice <= MAX_ROLL_COUNT {
             sum = self.max_value as u64 * x_dice as u64;
         }
@@ -123,7 +139,7 @@ impl Dicecoins {
     pub fn roll_avg_x(&self, x_dice: u32) -> u64 {
         let sum;
 
-        //Reject roll request greater than 9,999 so we can guarantee max return is 99,990,000
+        //Cap roll request greater than 9,999 so we can guarantee max return is 99,990,000
         if x_dice <= MAX_ROLL_COUNT {
             sum = self.avg_value as u64  * x_dice as u64;
         }
@@ -137,7 +153,7 @@ impl Dicecoins {
     pub fn roll_min_x(&self, x_dice: u32) -> u64 {
         let sum;
 
-        //Reject roll request greater than 9,999 so we can guarantee max return is 99,990,000
+        //Cap roll request greater than 9,999 so we can guarantee max return is 99,990,000
         if x_dice <= MAX_ROLL_COUNT {
             sum = self.min_value as u64 * x_dice as u64;
         }
@@ -165,7 +181,7 @@ impl Dicecoins {
 }
 
 //Tests on binary file should always be in the source file and not in a tests directory. That is for
-//libraries
+//libraries. I really wish somebody had told me this.
 #[cfg(test)]
 mod tests {
     use super::Dicecoins;

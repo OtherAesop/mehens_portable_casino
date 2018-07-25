@@ -20,25 +20,31 @@ extern crate ggez;
 //We need to import the gambling package
 mod gambling;
 //import the Dicecoins namespace
-use gambling::dicecoins::Dicecoins;
-use ggez::conf;
-use ggez::event;
-use ggez::{Context, GameResult};
-use ggez::graphics;
-use ggez::event::*;
-use std::env;
-use std::path;
-use std::time;
+//use gambling::dicecoins::Dicecoins;
+use ggez::conf::{WindowSetup};
+//use ggez::event;
+use ggez::{ContextBuilder, GameResult};
+//use ggez::graphics;
+//use ggez::event::*;
+//use std::env;
+//use std::path;
+//use std::time;
 
 fn main() {
-
+/*
     let c = conf::Conf::new();
     let ctx = &mut Context::load_from_conf("helloworld", "ggez", c).unwrap();
     graphics::set_default_filter(ctx, graphics::FilterMode::Nearest);
+*/
+    //We want to set the Window settings here. The user could be given
+    //the option to set these
+    let settings = WindowSetup{title: "ee".to_string(), }.title();
+    let ctx = ContextBuilder::new("mehens_portable_casino", "Mushu");
+
 
     // We add the CARGO_MANIFEST_DIR/resources do the filesystems paths so
     // we we look in the cargo project for files.
-    if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+  /*  if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
         let mut path = path::PathBuf::from(manifest_dir);
         path.push("assets");
         println!("{:?}", path);
@@ -52,4 +58,5 @@ fn main() {
     } else {
         println!("Game exited cleanly.");
     }
+    */
 }

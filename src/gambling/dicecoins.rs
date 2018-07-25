@@ -7,11 +7,13 @@ Limitations:
 -User may not have face values greater than 100,000
 -User may not have more than 10,000 faces
 -User may not roll more than 9,999 dice at a time
+-User may not have 0 faced dice, this will return a single sided dice with a value of 1
 
 Guarantees:
 Maximum valid roll = 9,999 * 10,000 * 100,000 = 9.999e+12 = 9,999,000,000,000
-Minimum valid roll = 1
-A request beyond these constraints will return a 0
+Minimum valid roll = 0
+A request beyond these constraints will return a 0 or a roll with the max value.
+In cases like a request for 100,000 dice rolls, this will roll the dice 9,999 tunes
 
 User Facing Functions:
 new(mut face_vals: Vec<u32>) -> Self (Creates dice with above constraints)
@@ -38,7 +40,7 @@ pub struct Dicecoins {
 #[allow(dead_code)] //Probably not going to use all of these
 impl Dicecoins {
     pub fn new(mut face_vals: Vec<u32>) -> Self {
-        let mut min = 1;
+        let mut min = 1; //compiler bug, initializing these here but never reading them should throw warning
         let mut max = 1;
         let mut avg = 0;
 
@@ -52,6 +54,11 @@ impl Dicecoins {
             //Enforce the limit
             if face_vals[x] > MAX_FACE_VALUE {
                 face_vals[x] = MAX_FACE_VALUE;
+            }
+            //Initially the first element is both the biggest and the smallest
+            if x == 0 {
+                max = face_vals[x];
+                min = face_vals[x];
             }
             //Finds max element
             if max < face_vals[x] {
@@ -157,11 +164,105 @@ impl Dicecoins {
     }
 }
 
+//Tests on binary file should always be in the source file and not in a tests directory. That is for
+//libraries
 #[cfg(test)]
 mod tests {
     use super::Dicecoins;
     #[test]
-    fn dicecoin_declare() {
-        assert_eq!(1, Dicecoins::new(vec![1,2,3,4]).roll_min_x(1)); //<----Why not in scope????
+    fn dicecoin_min() {
+        assert_eq!(1, Dicecoins::new(vec![3,2,1,4]).roll_min_x(1));
+    }
+
+    #[test]
+    #[ignore] //Use 'test -- --ignored' when calling to call all tests with #[ignore]
+    fn dicecoin_max() {
+        assert_eq!(4, Dicecoins::new(vec![3,4,1,2]).roll_max_x(1));
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_avg() {
+        assert_eq!(2, Dicecoins::new(vec![3,4,1,2]).roll_avg_x(1));
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_roll_max() {
+        assert_eq!(9999, Dicecoins::new(vec![1]).roll_x(10000000));
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_max_roll_max() {
+        assert_eq!(9999, Dicecoins::new(vec![1]).roll_max_x(10000000));
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_min_roll_max() {
+        assert_eq!(9999, Dicecoins::new(vec![1]).roll_min_x(10000000));
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_avg_roll_max() {
+        assert_eq!(9999, Dicecoins::new(vec![1]).roll_avg_x(10000000));
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_roll_0() {
+        assert_eq!(0, Dicecoins::new(vec![1]).roll_x(0));
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_max_roll_0() {
+        assert_eq!(0, Dicecoins::new(vec![1]).roll_max_x(0));
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_min_roll_0() {
+        assert_eq!(0, Dicecoins::new(vec![1]).roll_min_x(0));
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_avg_roll_0() {
+        assert_eq!(0, Dicecoins::new(vec![1]).roll_avg_x(0));
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_no_face() {
+        assert_eq!(1, Dicecoins::new(vec![]).face_count());
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_max_faces() {
+        //We need to load up a vector with over MAX_FACE_COUNT (10,000) elements
+        //I don't want to figure out how to make that accessible here so this should be changed to be
+        //the same as the above reference plus at least 1
+        let mut test_vec: Vec<u32> = Vec::new();
+
+        for _x in 0..10101 {
+            test_vec.push(1);
+        }
+        assert_eq!(10000, Dicecoins::new(test_vec).face_count());
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_max_face_val() {
+        assert_eq!(100000, Dicecoins::new(vec![900001]).roll_min_x(1));
+    }
+
+    #[test]
+    #[ignore]
+    fn dicecoin_min_face_val() {
+        assert_eq!(0, Dicecoins::new(vec![0]).roll_min_x(1));
     }
 }

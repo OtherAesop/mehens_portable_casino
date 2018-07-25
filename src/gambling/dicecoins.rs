@@ -12,7 +12,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/gpl.html>.
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //This file defines how a Dicecoin is made, and its functions.
 //Note the spirit of Dicecoin is based off standard RPG dice

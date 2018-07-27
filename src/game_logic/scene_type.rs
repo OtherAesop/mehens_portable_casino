@@ -14,11 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//These are the various types of scenes we can implement
+/*
+These are the various types of scenes we can implement. The only special purpose enum here is
+Exit, which will cause the handler to immediately exit cleanly.
+
+*/
+//This allows us to format the SceneType with {:?} in println!(...)
+#[derive(Debug)]
 pub enum SceneType {
     Cutscene,
     Game,
     Menu,
     Pause,
     Credits,
+    Exit,
 }
+

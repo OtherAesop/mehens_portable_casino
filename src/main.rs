@@ -17,15 +17,24 @@
 //Go find the crate via what is specified in Cargo.toml
 extern crate rand;
 extern crate ggez;
-//We need to import the gambling package
+
+//We need to import these package directories and then 'use' what we need out of them
 mod gambling;
-//import the Dicecoins namespace
+mod game_logic;
+
+//import the needed namespaces
 //use gambling::dicecoins::Dicecoins;
+use game_logic::main_state::*;
+use game_logic::scene_type::*;
+
+//Ggez
 use ggez::conf::{WindowSetup, WindowMode, NumSamples, FullscreenType};
 use ggez::event;
 use ggez::{ContextBuilder, GameResult};
 //use ggez::graphics;
 //use ggez::event::*;
+
+//Std
 use std::env;
 use std::path;
 //use std::time;
@@ -73,15 +82,27 @@ fn main() {
 
     // We add the CARGO_MANIFEST_DIR/resources do the filesystems paths so
     // we we look in the cargo project for files.
+    // Note that x.expect panics with the message when x contains an Err(...), and does nothing when it contains an Ok(...)
     let manifest_dir = env::var("CARGO_MANIFEST_DIR");
     let mut my_path = path::PathBuf::from(manifest_dir.expect("Cannot mount resource folder."));
     my_path.push("assets");
 
 
-    let ctx = ContextBuilder::new("mehens_portable_casino", "Mushu").
+    let ctx_build = ContextBuilder::new("mehens_portable_casino", "Mushu").
                                 window_setup(w_setup).
                                 window_mode(w_mode).
-                                add_resource_path(my_path);  //What is Into<PathBuf>
+                                add_resource_path(my_path);
+
+    /*
+    This returns a Result<Context, GameError>, and the match checks to see which it is. if there is
+    an error then we want to cry at the user, because it is definitely their fault (sarcasm.)
+    */
+    let ctx;
+    match ctx_build.build() {
+        Ok(context)  => ctx = context,
+        Err(E)       => panic!("Failed to build game context."),
+    }
+
 
 /*
   let state = &mut MainState::new(ctx).unwrap();

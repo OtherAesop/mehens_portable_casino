@@ -24,12 +24,16 @@ mod game_logic;
 
 //import the needed namespaces
 //use gambling::dicecoins::Dicecoins;
+#[allow(unused_imports)]
 use game_logic::main_state::*;
+#[allow(unused_imports)]
 use game_logic::scene_type::*;
 
 //Ggez
 use ggez::conf::{WindowSetup, WindowMode, NumSamples, FullscreenType};
+#[allow(unused_imports)]
 use ggez::event;
+#[allow(unused_imports)]
 use ggez::{ContextBuilder, GameResult};
 //use ggez::graphics;
 //use ggez::event::*;
@@ -37,6 +41,7 @@ use ggez::{ContextBuilder, GameResult};
 //Std
 use std::env;
 use std::path;
+//use std;
 //use std::time;
 
 fn main() {
@@ -55,12 +60,12 @@ fn main() {
     //We want to set the Window settings here. The user could be given
     //the option to set these
     let w_setup = WindowSetup {
-        title: "ee".to_string(),
-        icon: "assets/placeholder_icon.png".to_string(),
+        title: "Mehen's Portable Casino".to_string(),
+        icon: "/placeholder_icon.png".to_string(),
         resizable: false,
         allow_highdpi: true,
-        samples: NumSamples::One,
-    }; //anti-aliasing
+        samples: NumSamples::One, //anti-aliasing
+    };
 
     //Basic window settings, can be changed ingame
     let w_mode = WindowMode {
@@ -85,7 +90,7 @@ fn main() {
     // Note that x.expect panics with the message when x contains an Err(...), and does nothing when it contains an Ok(...)
     let manifest_dir = env::var("CARGO_MANIFEST_DIR");
     let mut my_path = path::PathBuf::from(manifest_dir.expect("Cannot mount resource folder."));
-    my_path.push("assets");
+    my_path.push("assets/");
 
 
     let ctx_build = ContextBuilder::new("mehens_portable_casino", "Mushu").
@@ -95,21 +100,29 @@ fn main() {
 
     /*
     This returns a Result<Context, GameError>, and the match checks to see which it is. if there is
-    an error then we want to cry at the user, because it is definitely their fault (sarcasm.)
+    an error then we want to cry at the user, because it is definitely their fault *sarcasm*.
     */
     let ctx;
     match ctx_build.build() {
         Ok(context)  => ctx = context,
-        Err(E)       => panic!("Failed to build game context."),
+        Err(e)       => panic!("Failed to build game context with err: {:?}.", e),
     }
 
+    //Test buffer to see if loop is working correctly
+    let mut test_buf: Vec<SceneType> = Vec::new();
+    test_buf.push(SceneType::Cutscene);
+    test_buf.push(SceneType::Game);
+    test_buf.push(SceneType::Menu);
+    test_buf.push(SceneType::Credits);
+    test_buf.push(SceneType::Exit);
 
-/*
-  let state = &mut MainState::new(ctx).unwrap();
-  if let Err(e) = event::run(ctx, state) {
-      println!("Error encountered: {}", e);
-  } else {
-      println!("Game exited cleanly.");
-  }
-*/
+    //Runs the game and returns a tuple that shows the exiting conditions
+    let game = &mut MainState::new(ctx, test_buf).play();
+
+    match game {
+        (true, true) => println!("Game exited cleanly."),
+        (true, false) => println!("Game did not Exit or have an error, serious fault."),
+        (false, _) => println!("Fault occurred within scene, terminating."),
+    }
+
 }

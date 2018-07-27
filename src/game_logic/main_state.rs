@@ -33,6 +33,7 @@ pub struct MainState{
     scene_buf: Vec<SceneType>,
 }
 
+#[allow(dead_code)]
 impl MainState{
 
     //This loads the first scene and stores the rest into a buffer variable
@@ -50,7 +51,7 @@ impl MainState{
 
     //Here we play scenes in a loop until one of them comes back crying for any reason and then we
     //decide it just isn't worth it anymore and terminate
-    pub fn play(&mut self) -> bool {
+    pub fn play(&mut self) -> (bool, bool) {
 
         let mut success_flag = true;
         let mut exit_flag = false;
@@ -60,8 +61,8 @@ impl MainState{
             if self.scene_buf.is_empty() { //Here we know that there is only one scene so we replay it
                 //replay current scene
                 success_flag = true;
-            } else { //There is another scene ready to be played
-                match self.scene_buf.remove(0) {
+            } else { //There is another scene ready to be played, unwrap will not fail since there will always be something to pick
+                match self.scene_buf.first().unwrap() {
                     SceneType::Cutscene => success_flag = true, //I don't need anything special to be done for these
                     SceneType::Game     => success_flag = true,
                     SceneType::Menu     => success_flag = true,
@@ -72,15 +73,19 @@ impl MainState{
                 }
             }
 
-            if success_flag && !exit_flag {
+            if success_flag && !exit_flag { //DEBUG: Can I avoid copying here?
+                println!("This scene is {:?}.", self.scene_curr);
                 self.scene_buf.push(self.scene_curr); //put the current at the end of the array
                 self.scene_curr = self.scene_buf.remove(0); // take the item at the front
-                success_flag = false; //TODO: replace this with playing the Scene
+                println!("Next scene is {:?}.", self.scene_curr);
+                println!("-------------------------------------");
+                success_flag = true; //TODO: replace this with playing the new scene_curr
             }
         }
 
-        success_flag
+        (success_flag, exit_flag)
     }
+
 
 }
 

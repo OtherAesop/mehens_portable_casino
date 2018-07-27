@@ -20,7 +20,7 @@ Exit, which will cause the handler to immediately exit cleanly.
 
 */
 //This allows us to format the SceneType with {:?} in println!(...)
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum SceneType {
     Cutscene,
     Game,

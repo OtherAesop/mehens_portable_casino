@@ -22,7 +22,7 @@ mod gambling;
 //import the Dicecoins namespace
 //use gambling::dicecoins::Dicecoins;
 use ggez::conf::{WindowSetup, WindowMode, NumSamples, FullscreenType};
-//use ggez::event;
+use ggez::event;
 use ggez::{ContextBuilder, GameResult};
 //use ggez::graphics;
 //use ggez::event::*;
@@ -73,33 +73,22 @@ fn main() {
 
     // We add the CARGO_MANIFEST_DIR/resources do the filesystems paths so
     // we we look in the cargo project for files.
-      if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-          let mut path = path::PathBuf::from(manifest_dir);
-          path.push("assets");
-          println!("{:?}", path);
-      }
+    let manifest_dir = env::var("CARGO_MANIFEST_DIR");
+    let mut my_path = path::PathBuf::from(manifest_dir.expect("Cannot mount resource folder."));
+    my_path.push("assets");
+
 
     let ctx = ContextBuilder::new("mehens_portable_casino", "Mushu").
                                 window_setup(w_setup).
                                 window_mode(w_mode).
-                                add_resource_path(&path);
+                                add_resource_path(my_path);  //What is Into<PathBuf>
 
-
-  // We add the CARGO_MANIFEST_DIR/resources do the filesystems paths so
-  // we we look in the cargo project for files.
-/*  if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-      let mut path = path::PathBuf::from(manifest_dir);
-      path.push("assets");
-      println!("{:?}", path);
-      ctx.filesystem.mount(&path, true);
-  }
-
-
+/*
   let state = &mut MainState::new(ctx).unwrap();
   if let Err(e) = event::run(ctx, state) {
       println!("Error encountered: {}", e);
   } else {
       println!("Game exited cleanly.");
   }
-  */
+*/
 }

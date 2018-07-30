@@ -9,7 +9,7 @@ ggez = "0.4.3"
 
 [profile.release] #Documentation on these flags are here https://doc.rust-lang.org/cargo/reference/manifest.html#the-profile-sections
 opt-level = 3 # optimization level. 0-1 for debugging, 2 is well optimized, max 3
-debug = false # Include debug symbols
+debug = true # Include debug symbols in output
 rpath = false # Set loader paths
 lto = false # Link Time Optimization, increases compilation time but reduces binary size
 debug-assertions = false # Turns on or off debug asserts like 'debug_assert!()'

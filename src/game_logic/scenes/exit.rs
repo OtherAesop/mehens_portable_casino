@@ -14,12 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/*
-Declaring our files as 'pub mod' here allows them to be 'use'd outside of here. In main.rs
-for example. Everything that you want to use must have the keyword 'pub', all the way down the function
-level.
-*/
-
-//Controls the state of the game. I.E. advances the game from one scene to the next
-pub mod main_state;
-pub mod scene_type;
+pub struct Exit {
+    //This is designed to trigger an immediate quit event and thus needs no data
+}

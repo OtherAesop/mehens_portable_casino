@@ -14,47 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/*
-These are the details of the types of scenes we can implement. These are designed to be inside the enum
-and used to provide frameworks for different kinds of functionality.
-*/
-
-use ggez::GameResult;
-
-pub struct Cutscene {
-
-
-
-}
-
-pub struct Game {
-
-
-
-}
-
 pub struct Menu {
+    fps: u32,
 
 
-
-}
-
-pub struct Pause {
-
-
-
-}
-
-pub struct Credits {
-
-
-
-}
-
-pub struct Exit {
-    //This is designed to trigger an immediate quit event and thus needs no data
-}
-
-trait Playable {
-    fn play() -> GameResult<bool>;
 }

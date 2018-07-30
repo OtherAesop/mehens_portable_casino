@@ -15,11 +15,15 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /*
-These are the various types of scenes we can implement. The only special purpose enum here is
-Exit, which will cause the handler to immediately exit cleanly.
+These are the various types of scenes we can implement. The purpose of these is to direct the flow
+of draw and update statements so it simulates having separate scenes in the game
 */
 
-use ggez::error::{GameResult};
+/*
+Each scene here must match a SPECIFIC implementation defined elsewhere
+a more modular approach looks to be impossible due to the way event::run() works,
+attempt at your own risk
+*/
 
 //This allows us to format the SceneType with {:?} in println!(...)
 #[derive(Debug, Copy, Clone)]
@@ -32,18 +36,3 @@ pub enum SceneType {
     Exit,
 }
 
-impl SceneType {
-
-    pub fn play(&self) -> GameResult<bool>{
-        match self {
-            SceneType::Cutscene => (),
-            SceneType::Game     => (),
-            SceneType::Menu     => (),
-            SceneType::Pause    => (),
-            SceneType::Credits  => (),
-            SceneType::Exit     => (),
-        }
-
-        Ok(true)
-    }
-}

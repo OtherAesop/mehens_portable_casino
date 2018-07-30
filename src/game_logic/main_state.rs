@@ -22,82 +22,59 @@ to tell the story or whatever
 
 //My imports
 use SceneType;
+use game_logic::utility_functions::*;
 
 //Ggez imports
 use ggez::{Context};
-use ggez::error::GameResult;
+use ggez::error::{GameResult/*,GameError*/};
 
+use ggez::event;
+use ggez::event::{MouseButton, Keycode};
 //This is the core loop
+#[allow(dead_code)]
 pub struct MainState{
-    ctx: Context,
     scene_curr: SceneType,
     scene_buf: Vec<SceneType>,
 }
 
-#[allow(dead_code)]
+impl event::EventHandler for MainState{
+    fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
+
+        Ok(())
+    }
+
+    fn draw(&mut self, _ctx: &mut Context) -> GameResult<()> {
+
+        Ok(())
+    }
+    fn mouse_button_down_event(&mut self, _ctx: &mut Context, _button: MouseButton, _x: i32, _y: i32){}
+
+    fn key_down_event(&mut self, ctx: &mut Context, keycode: event::Keycode, _keymod: event::Mod, _repeat: bool) {
+        if keycode == Keycode::Return {
+            match ctx.quit() {
+                Err(_) => panic!("Couldn't exit normally"),
+                _       => (),
+            };
+        }
+    }
+
+    fn key_up_event(&mut self, _ctx: &mut Context, _keycode: event::Keycode, _keymod: event::Mod, _repeat: bool) {}
+
+}
+
 impl MainState{
 
     //This loads the first scene and stores the rest into a buffer variable
-    pub fn new (context: Context, mut scenes: Vec<SceneType>) -> Self {
-
+    pub fn new (_cont: &mut Context) -> Self {
+        let mut scenes: Vec<SceneType> = make_scenes();
         if scenes.is_empty(){
-            panic!("Empty scene buffer passed to MainState.");
+            panic!("Empty scene buffer.");
         }
 
         //Note that remove will not fail here since we have guaranteed it will have at least one
         //scene element to take out. Note that scene_buf CAN be empty
-        MainState{ctx: context, scene_curr: scenes.remove(0), scene_buf: scenes}
+        MainState{ scene_curr: scenes.remove(0), scene_buf: scenes}
 
     }
-
-    //Here we play scenes in a loop until one of them comes back crying for any reason and then we
-    //decide it just isn't worth it anymore and terminate
-    pub fn play(&mut self) -> GameResult<bool> {
-
-        let mut scene_retval = Ok(false); //This will never get read
-        let mut exit_flag = false;
-
-        //Plays the next scene or detects the Exit scene and leaves
-        while !exit_flag {
-            //Note: I used if/else here because two match statements are a little ugly
-            if self.scene_buf.is_empty() { //Here we know that there is only one scene so we replay it
-                scene_retval = self.scene_curr.play();
-            } else { //There is another scene ready to be played, unwrap will not fail since there will always be something to pick
-                match self.scene_buf.first().unwrap() {
-                    SceneType::Cutscene => (), //I don't need anything special to be done for these
-                    SceneType::Game     => (),
-                    SceneType::Menu     => (),
-                    SceneType::Pause    => (),
-                    SceneType::Credits  => (),
-                    SceneType::Exit     => exit_flag = true, //If we encounter an exit then we know it is time
-                    //_                   => panic!("Undefined handling for scene type encountered when loading from {:?}.", self.scene_curr),
-                }
-            }
-
-            if !exit_flag { //DEBUG: Can I avoid copying here?
-                //println!("This scene is {:?}.", self.scene_curr);
-                self.scene_buf.push(self.scene_curr); //put the current at the end of the array
-                self.scene_curr = self.scene_buf.remove(0); // take the item at the front
-                //println!("Next scene is {:?}.", self.scene_curr);
-                //println!("-------------------------------------");
-                scene_retval = self.scene_curr.play();
-
-                match scene_retval {
-                    Ok(flag) => if flag { /*all good do nothing*/} else { exit_flag = true; }
-                    _        => exit_flag = true,
-                }
-            }
-        }
-
-        //This should never fail. I think this destroys the actual game context rather than the event
-        //being run.
-        self.ctx.quit()?;
-        scene_retval
-    }
-
 
 }
-
-
-
-

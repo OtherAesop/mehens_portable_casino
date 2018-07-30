@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/*
 pub struct Exit {
     //This is designed to trigger an immediate quit event and thus needs no data
 }
+*/

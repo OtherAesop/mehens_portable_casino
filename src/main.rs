@@ -30,14 +30,15 @@ mod game_logic;
 use game_logic::main_state::*;
 #[allow(unused_imports)]
 use game_logic::scene_type::*;
-#[allow(unused_imports)]
-use game_logic::scenes::*;
+//#[allow(unused_imports)]
+//use game_logic::scenes::*;
 
 //Ggez
 use ggez::conf::{WindowSetup, WindowMode, NumSamples, FullscreenType};
 #[allow(unused_imports)]
 use ggez::event;
-use ggez::{ContextBuilder};
+#[allow(unused_imports)]
+use ggez::{ContextBuilder, Context};
 //use ggez::error::{GameResult, GameError};
 //use ggez::graphics;
 //use ggez::event::*;
@@ -72,10 +73,39 @@ fn main() {
         max_height: 0,
     };
 
+    //Correctly mounts the resource folders
+    let ctx_build = mount_resources(w_setup, w_mode);
+
+    /*
+    This returns a Result<Context, GameError>, and the match checks to see which it is. if there is
+    an error then we want to cry at the user, because it is definitely their fault *sarcasm*.
+    */
+    let ctx_temp= &mut ctx_build.build();
+    let ctx;
+    match ctx_temp {
+        Ok(context)  => ctx = context,
+        Err(e)       => panic!("Failed to build game context with err: {:?}.", e),
+    }
+
+    //Runs the game and returns a tuple that shows the exiting conditions
+    let game = &mut MainState::new(ctx);
+    let result = event::run(ctx, game);
+
+    //Note our game returns a bool reference and thus we must use the * to get a correct comparison
+
+    if let Err(e) = result {
+        println!("Fatal error encountered: {}", e);
+    } else{
+        println!("Game exited successfully");
+    }
+
+}
+
+fn mount_resources( window_s: WindowSetup, window_m: WindowMode) -> ContextBuilder{
     //This method is pretty damn messy. How could this be improved?
-    let mut ctx_build = ContextBuilder::new("mehens_portable_casino", "ggez").
-        window_setup(w_setup.clone()).
-        window_mode(w_mode.clone());
+    let mut ctx_b = ContextBuilder::new("mehens_portable_casino", "ggez").
+        window_setup(window_s.clone()).
+        window_mode(window_m.clone());
 
     //We add the CARGO_MANIFEST_DIR/resources to the filesystems paths so
     //we look in the cargo project for files, but only when on the dev build
@@ -85,42 +115,13 @@ fn main() {
             let mut dev_path = path::PathBuf::from(cargo_path);
             dev_path.push("assets/");
             //We have to rebuild if this is the case
-            ctx_build = ContextBuilder::new("mehens_portable_casino", "ggez").
-                window_setup(w_setup).
-                window_mode(w_mode).
+            ctx_b = ContextBuilder::new("mehens_portable_casino", "ggez").
+                window_setup(window_s).
+                window_mode(window_m).
                 add_resource_path(dev_path);
         }
         _            => (), //We know this is a distributed executable running right here
     }
 
-
-    /*
-    This returns a Result<Context, GameError>, and the match checks to see which it is. if there is
-    an error then we want to cry at the user, because it is definitely their fault *sarcasm*.
-    */
-    let ctx;
-    match ctx_build.build() {
-        Ok(context)  => ctx = context,
-        Err(e)       => panic!("Failed to build game context with err: {:?}.", e),
-    }
-
-    //Test buffer to see if loop is working correctly
-    let mut test_buf: Vec<SceneType> = Vec::new();
-    test_buf.push(SceneType::Cutscene);
-    test_buf.push(SceneType::Game);
-    test_buf.push(SceneType::Menu);
-    test_buf.push(SceneType::Credits);
-    //test_buf.push(SceneType::Exit);
-
-    //Runs the game and returns a tuple that shows the exiting conditions
-    let game = &mut MainState::new(ctx, test_buf).play();
-
-
-    //Note our game returns a bool reference and thus we must use the * to get a correct comparison
-    let retval; //We want this to return 0 on success
-    match game {
-        Ok(flag) =>{ if *flag {retval = 0} else {retval = -1;}},
-        _e => eprintln!("{:?}",_e), //QUESTION: Will this print whatever value GameError's enum value is?
-    }
-
+    ctx_b
 }

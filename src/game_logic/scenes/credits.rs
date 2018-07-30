@@ -13,8 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-use ggez::graphics::spritebatch::{SpriteBatch, SpriteIdx};
+/*
+use ggez::graphics::spritebatch::{SpriteBatch, /*SpriteIdx*/};
 use ggez::graphics::{present, clear, Image, Point2};
 
 use ggez::event;
@@ -50,7 +50,7 @@ impl<'a> Credits<'a>{
             ctx: cont,
             background: [SpriteBatch::new(img1), SpriteBatch::new(img2)],
             screen_center: Point2::new((self.ctx.conf.window_mode.width as f32)/(2 as f32), (self.ctx.conf.window_mode.height as f32)/(2 as f32)),
-            quit: true,
+            quit: false,
         };
 
         Ok(retval)
@@ -66,6 +66,9 @@ impl<'a> event::EventHandler for Credits<'a> {
     fn update(&mut self, cont: &mut Context) -> GameResult<()> {
         while check_update_time(self.ctx, self.fps) {
             // runs x frames per second
+            if self.quit {
+                self.ctx.quit();
+            }
         }
 
         Ok(())
@@ -83,7 +86,8 @@ impl<'a> event::EventHandler for Credits<'a> {
 
     fn key_down_event(&mut self, _ctx: &mut Context, key: Keycode, _keymod: Mod, _repeat: bool){
         match key {
-            Keycode::Return => self.quit_event(self.ctx), //All this needs to do is progress when the user is ready
+            Keycode::Return => self.quit = true, //All this needs to do is progress when the user is ready
+            _               => ()
         }
         ()
     }
@@ -92,3 +96,4 @@ impl<'a> event::EventHandler for Credits<'a> {
 
 
 }
+*/

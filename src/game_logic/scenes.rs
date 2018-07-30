@@ -15,12 +15,46 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /*
-Declaring our files as 'pub mod' here allows them to be 'use'd outside of here. In main.rs
-for example. Everything that you want to use must have the keyword 'pub', all the way down the function
-level.
+These are the details of the types of scenes we can implement. These are designed to be inside the enum
+and used to provide frameworks for different kinds of functionality.
 */
 
-//Controls the state of the game. I.E. advances the game from one scene to the next
-pub mod main_state;
-pub mod scene_type;
-pub mod scenes;
+use ggez::GameResult;
+
+pub struct Cutscene {
+
+
+
+}
+
+pub struct Game {
+
+
+
+}
+
+pub struct Menu {
+
+
+
+}
+
+pub struct Pause {
+
+
+
+}
+
+pub struct Credits {
+
+
+
+}
+
+pub struct Exit {
+    //This is designed to trigger an immediate quit event and thus needs no data
+}
+
+trait Playable {
+    fn play() -> GameResult<bool>;
+}

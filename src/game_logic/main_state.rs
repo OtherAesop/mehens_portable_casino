@@ -24,7 +24,8 @@ to tell the story or whatever
 use SceneType;
 
 //Ggez imports
-use ggez::Context;
+use ggez::{Context};
+use ggez::error::GameResult;
 
 //This is the core loop
 pub struct MainState{
@@ -51,39 +52,44 @@ impl MainState{
 
     //Here we play scenes in a loop until one of them comes back crying for any reason and then we
     //decide it just isn't worth it anymore and terminate
-    pub fn play(&mut self) -> (bool, bool) {
+    pub fn play(&mut self) -> GameResult<bool> {
 
-        let mut success_flag = true;
+        let mut scene_retval = Ok(false); //This will never get read
         let mut exit_flag = false;
 
-        while success_flag && !exit_flag {
+        //Plays the next scene or detects the Exit scene and leaves
+        while !exit_flag {
             //Note: I used if/else here because two match statements are a little ugly
             if self.scene_buf.is_empty() { //Here we know that there is only one scene so we replay it
-                //replay current scene
-                success_flag = true;
+                scene_retval = self.scene_curr.play();
             } else { //There is another scene ready to be played, unwrap will not fail since there will always be something to pick
                 match self.scene_buf.first().unwrap() {
-                    SceneType::Cutscene => success_flag = true, //I don't need anything special to be done for these
-                    SceneType::Game     => success_flag = true,
-                    SceneType::Menu     => success_flag = true,
-                    SceneType::Pause    => success_flag = true,
-                    SceneType::Credits  => success_flag = true,
+                    SceneType::Cutscene => (), //I don't need anything special to be done for these
+                    SceneType::Game     => (),
+                    SceneType::Menu     => (),
+                    SceneType::Pause    => (),
+                    SceneType::Credits  => (),
                     SceneType::Exit     => exit_flag = true, //If we encounter an exit then we know it is time
                     //_                   => panic!("Undefined handling for scene type encountered when loading from {:?}.", self.scene_curr),
                 }
             }
 
-            if success_flag && !exit_flag { //DEBUG: Can I avoid copying here?
-                println!("This scene is {:?}.", self.scene_curr);
+            if !exit_flag { //DEBUG: Can I avoid copying here?
+                //println!("This scene is {:?}.", self.scene_curr);
                 self.scene_buf.push(self.scene_curr); //put the current at the end of the array
                 self.scene_curr = self.scene_buf.remove(0); // take the item at the front
-                println!("Next scene is {:?}.", self.scene_curr);
-                println!("-------------------------------------");
-                success_flag = true; //TODO: replace this with playing the new scene_curr
+                //println!("Next scene is {:?}.", self.scene_curr);
+                //println!("-------------------------------------");
+                scene_retval = self.scene_curr.play();
+
+                match scene_retval {
+                    Ok(flag) => if flag { /*all good do nothing*/} else { exit_flag = true; }
+                    _        => exit_flag = true,
+                }
             }
         }
 
-        (success_flag, exit_flag)
+        scene_retval
     }
 
 

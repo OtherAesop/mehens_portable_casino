@@ -34,7 +34,8 @@ use ggez::conf::{WindowSetup, WindowMode, NumSamples, FullscreenType};
 #[allow(unused_imports)]
 use ggez::event;
 #[allow(unused_imports)]
-use ggez::{ContextBuilder, GameResult};
+use ggez::{ContextBuilder};
+//use ggez::error::{GameResult, GameError};
 //use ggez::graphics;
 //use ggez::event::*;
 
@@ -45,18 +46,6 @@ use std::path;
 //use std::time;
 
 fn main() {
-    /*
-    let c = conf::Conf::new();
-    let ctx = &mut Context::load_from_conf("helloworld", "ggez", c).unwrap();
-    graphics::set_default_filter(ctx, graphics::FilterMode::Nearest);
-// We add the CARGO_MANIFEST_DIR/resources do the filesystems paths so
-// we we look in the cargo project for files.
-  if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-      let mut path = path::PathBuf::from(manifest_dir);
-      path.push("assets");
-      println!("{:?}", path);
-  }
-*/
     //We want to set the Window settings here. The user could be given
     //the option to set these
     let w_setup = WindowSetup {
@@ -79,24 +68,27 @@ fn main() {
         min_height: 0,
         max_height: 0,
     };
-    /*
-        let c = conf::Conf::new();
-        let ctx = &mut Context::load_from_conf("helloworld", "ggez", c).unwrap();
-        graphics::set_default_filter(ctx, graphics::FilterMode::Nearest);
-        */
 
-    // We add the CARGO_MANIFEST_DIR/resources do the filesystems paths so
-    // we we look in the cargo project for files.
-    // Note that x.expect panics with the message when x contains an Err(...), and does nothing when it contains an Ok(...)
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR");
-    let mut my_path = path::PathBuf::from(manifest_dir.expect("Cannot mount resource folder."));
-    my_path.push("assets/");
+    let mut ctx_build = ContextBuilder::new("mehens_portable_casino", "ggez").
+        window_setup(w_setup.clone()).
+        window_mode(w_mode.clone());
 
+    //We add the CARGO_MANIFEST_DIR/resources to the filesystems paths so
+    //we look in the cargo project for files, but only when on the dev build
+    //Note that x.expect panics with the message when x contains an Err(...), and does nothing when it contains an Ok(...)
+    match env::var("CARGO_MANIFEST_DIR") {
+        Ok(cargo_path) =>  {
+            let mut dev_path = path::PathBuf::from(cargo_path);
+            dev_path.push("assets/");
+            //We have to rebuild if this is the case
+            ctx_build = ContextBuilder::new("mehens_portable_casino", "ggez").
+                window_setup(w_setup).
+                window_mode(w_mode).
+                add_resource_path(dev_path);
+        }
+        _            => (), //We know this is a distributed executable running right here
+    }
 
-    let ctx_build = ContextBuilder::new("mehens_portable_casino", "Mushu").
-                                window_setup(w_setup).
-                                window_mode(w_mode).
-                                add_resource_path(my_path);
 
     /*
     This returns a Result<Context, GameError>, and the match checks to see which it is. if there is
@@ -114,15 +106,17 @@ fn main() {
     test_buf.push(SceneType::Game);
     test_buf.push(SceneType::Menu);
     test_buf.push(SceneType::Credits);
-    test_buf.push(SceneType::Exit);
+    //test_buf.push(SceneType::Exit);
 
     //Runs the game and returns a tuple that shows the exiting conditions
     let game = &mut MainState::new(ctx, test_buf).play();
 
+
+    //Note our game returns a bool reference and thus we must use the * to get a correct comparison
+    let retval; //We want this to return 0 on success
     match game {
-        (true, true) => println!("Game exited cleanly."),
-        (true, false) => println!("Game did not Exit or have an error, serious fault."),
-        (false, _) => println!("Fault occurred within scene, terminating."),
+        Ok(flag) =>{ if *flag {retval = 0} else {retval = -1;}},
+        _e => eprintln!("{:?}",_e), //QUESTION: Will this print whatever value GameError's enum value is?
     }
 
 }

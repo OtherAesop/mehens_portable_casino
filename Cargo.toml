@@ -6,3 +6,14 @@ authors = ["MushuYoWushu <iangore@gmail.com>"]
 [dependencies]
 rand = "0.5.0"
 ggez = "0.4.3"
+
+[profile.release] #Documentation on these flags are here https://doc.rust-lang.org/cargo/reference/manifest.html#the-profile-sections
+opt-level = 3 # optimization level. 0-1 for debugging, 2 is well optimized, max 3
+debug = false # Include debug symbols
+rpath = false # Set loader paths
+lto = false # Link Time Optimization, increases compilation time but reduces binary size
+debug-assertions = false # Turns on or off debug asserts like 'debug_assert!()'
+codegen-units = 16 # if greater than one will prevent some optimizations but decrease compile time
+panic = 'unwind' # the way the file acts when it panics, can also be 'abort'
+incremental = false # incremental compilation enabled
+overflow-checks = false # Use overflow check

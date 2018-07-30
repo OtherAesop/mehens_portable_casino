@@ -19,21 +19,24 @@ extern crate rand;
 extern crate ggez;
 
 //We need to import these package directories and then 'use' what we need out of them
+//We only need the topmost directory. We can 'use' out the rest.
 mod gambling;
 mod game_logic;
 
+
 //import the needed namespaces
-//use gambling::dicecoins::Dicecoins;
+//DEBUG: these are included so the compiler goes over them.
 #[allow(unused_imports)]
 use game_logic::main_state::*;
 #[allow(unused_imports)]
 use game_logic::scene_type::*;
+#[allow(unused_imports)]
+use game_logic::scenes::*;
 
 //Ggez
 use ggez::conf::{WindowSetup, WindowMode, NumSamples, FullscreenType};
 #[allow(unused_imports)]
 use ggez::event;
-#[allow(unused_imports)]
 use ggez::{ContextBuilder};
 //use ggez::error::{GameResult, GameError};
 //use ggez::graphics;
@@ -69,6 +72,7 @@ fn main() {
         max_height: 0,
     };
 
+    //This method is pretty damn messy. How could this be improved?
     let mut ctx_build = ContextBuilder::new("mehens_portable_casino", "ggez").
         window_setup(w_setup.clone()).
         window_mode(w_mode.clone());

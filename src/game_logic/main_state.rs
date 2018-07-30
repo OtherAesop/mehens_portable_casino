@@ -89,6 +89,9 @@ impl MainState{
             }
         }
 
+        //This should never fail. I think this destroys the actual game context rather than the event
+        //being run.
+        self.ctx.quit()?;
         scene_retval
     }
 

@@ -20,14 +20,16 @@ of draw and update statements so it simulates having separate scenes in the game
 */
 
 /*
-Each scene here must match a SPECIFIC implementation defined elsewhere
-a more modular approach looks to be impossible due to the way event::run() works,
-attempt at your own risk
+Use these enums to order how game scene functions are executed in main_state.rs.
+Exit will cause an immediate successful exit upon being encountered. Otherwise the game
+will loop between scenes.
 */
 
 //This allows us to format the SceneType with {:?} in println!(...)
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, PartialEq)]
+#[allow(unused)]
 pub enum SceneType {
+    Intro,
     Cutscene,
     Game,
     Menu,

@@ -19,10 +19,10 @@ extern crate rand;
 extern crate ggez;
 
 //We need to import these package directories and then 'use' what we need out of them
-//We only need the topmost directory. We can 'use' out the rest.
+//We only need the topmost directory. We can 'use' out the rest anywhere else.
 mod gambling;
 mod game_logic;
-
+mod scenes;
 
 //import the needed namespaces
 //DEBUG: these are included so the compiler goes over them.
@@ -30,8 +30,7 @@ mod game_logic;
 use game_logic::main_state::*;
 #[allow(unused_imports)]
 use game_logic::scene_type::*;
-//#[allow(unused_imports)]
-//use game_logic::scenes::*;
+use game_logic::utility_functions::*;
 
 //Ggez
 use ggez::conf::{WindowSetup, WindowMode, NumSamples, FullscreenType};
@@ -44,12 +43,20 @@ use ggez::{ContextBuilder, Context};
 //use ggez::event::*;
 
 //Std
-use std::env;
-use std::path;
+//use std::slice::Iter;
+//use std::iter::{Cycle};
+//use std::env;
+//use std::path;
 //use std;
 //use std::time;
 
+
+
 fn main() {
+    //We need to store the scene Vec somewhere so we can make a circular iterator reference to it
+    let scenes: Vec<SceneType> = make_scenes();
+    let scene_cycle = &mut scenes.iter().cycle();
+
     //We want to set the Window settings here. The user could be given
     //the option to set these
     let w_setup = WindowSetup {
@@ -62,8 +69,8 @@ fn main() {
 
     //Basic window settings, can be changed ingame
     let w_mode = WindowMode {
-        width: 800,
-        height: 600,
+        width: 1024,
+        height: 768,
         borderless: false,
         fullscreen_type: FullscreenType::Off,
         vsync: true,
@@ -87,41 +94,17 @@ fn main() {
         Err(e)       => panic!("Failed to build game context with err: {:?}.", e),
     }
 
-    //Runs the game and returns a tuple that shows the exiting conditions
-    let game = &mut MainState::new(ctx);
+    //Creates then runs the game and returns a tuple that shows the exiting conditions.
+    //make_scenes
+    let game = &mut MainState::new(ctx, scene_cycle);
     let result = event::run(ctx, game);
 
     //Note our game returns a bool reference and thus we must use the * to get a correct comparison
 
-    if let Err(e) = result {
-        println!("Fatal error encountered: {}", e);
+    if let Err(_) = result {
+        println!("Fatal error encountered: {:?}", result);
     } else{
         println!("Game exited successfully");
     }
 
-}
-
-fn mount_resources( window_s: WindowSetup, window_m: WindowMode) -> ContextBuilder{
-    //This method is pretty damn messy. How could this be improved?
-    let mut ctx_b = ContextBuilder::new("mehens_portable_casino", "ggez").
-        window_setup(window_s.clone()).
-        window_mode(window_m.clone());
-
-    //We add the CARGO_MANIFEST_DIR/resources to the filesystems paths so
-    //we look in the cargo project for files, but only when on the dev build
-    //Note that x.expect panics with the message when x contains an Err(...), and does nothing when it contains an Ok(...)
-    match env::var("CARGO_MANIFEST_DIR") {
-        Ok(cargo_path) =>  {
-            let mut dev_path = path::PathBuf::from(cargo_path);
-            dev_path.push("assets/");
-            //We have to rebuild if this is the case
-            ctx_b = ContextBuilder::new("mehens_portable_casino", "ggez").
-                window_setup(window_s).
-                window_mode(window_m).
-                add_resource_path(dev_path);
-        }
-        _            => (), //We know this is a distributed executable running right here
-    }
-
-    ctx_b
 }

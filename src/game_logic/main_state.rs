@@ -20,61 +20,160 @@ and progression conditions that allow them to insert game scenes as they please 
 to tell the story or whatever
 */
 
+/*
+TODO NOTE: self.scene_curr = self.scene_circle_iter.next().unwrap(); selects the next scene
+*/
+
 //My imports
 use SceneType;
-use game_logic::utility_functions::*;
+use game_logic::utility_functions::{check_flags};
+use scenes::intro_mpc_title::IntroMPC;
 
 //Ggez imports
 use ggez::{Context};
-use ggez::error::{GameResult/*,GameError*/};
+use ggez::error::{GameResult};
+
+use ggez::timer::check_update_time; //Gotta control FPS!
 
 use ggez::event;
-use ggez::event::{MouseButton, Keycode};
+use ggez::event::{MouseButton};
+
+use ggez::graphics::{clear,present};
+
+//Std imports
+use std::slice::Iter;
+use std::iter::{Cycle, Iterator};
+
 //This is the core loop
-#[allow(dead_code)]
-pub struct MainState{
-    scene_curr: SceneType,
-    scene_buf: Vec<SceneType>,
+#[allow(unused)]
+pub struct MainState<'a>{
+    //Scene Data
+    scene_curr: &'a SceneType,
+    scene_circle_iter: &'a mut Cycle<Iter<'a,SceneType>>,
+    //Environment Variables
+    screen_center_xy: (f32,f32),
+    fps_target: u32,
+    quit_flag: bool,
+    //Intro Screen
+    mpc_intro: IntroMPC,
 }
 
-impl event::EventHandler for MainState{
-    fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
-
-        Ok(())
-    }
-
-    fn draw(&mut self, _ctx: &mut Context) -> GameResult<()> {
-
-        Ok(())
-    }
-    fn mouse_button_down_event(&mut self, _ctx: &mut Context, _button: MouseButton, _x: i32, _y: i32){}
-
-    fn key_down_event(&mut self, ctx: &mut Context, keycode: event::Keycode, _keymod: event::Mod, _repeat: bool) {
-        if keycode == Keycode::Return {
-            match ctx.quit() {
-                Err(_) => panic!("Couldn't exit normally"),
-                _       => (),
+impl<'a> event::EventHandler for MainState<'a>{
+    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+        while check_update_time(ctx, self.fps_target) {
+            //Run at x frames per second
+            //Here we sort into the correct call, you can add extra logic to sort through multiple scenes
+            //of different types or just add in a new enum. The second option is probably easier
+            let msg = match self.scene_curr {
+                SceneType::Intro    => self.mpc_intro.update(ctx),
+                SceneType::Cutscene => Ok(()),/*TODO add in call to the correct scene and fn*/
+                SceneType::Game     => Ok(()),/*TODO add in call to the correct scene and fn*/
+                SceneType::Menu     => Ok(()),/*TODO add in call to the correct scene and fn*/
+                SceneType::Pause    => Ok(()),/*TODO add in call to the correct scene and fn*/
+                SceneType::Credits  => Ok(()),/*TODO add in call to the correct scene and fn*/
+                SceneType::Exit     => {self.quit_flag = true; Ok(())},
             };
+
+            if let Err(_) = msg {
+                panic!("Error in MainState update call: {:?}", msg);
+            }
+
+            check_flags(ctx, &self.quit_flag);
+        }
+        Ok(())
+    }
+
+    fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
+        clear(ctx); //Clears everything
+        //Here we sort into the correct call, you can add extra logic to sort through multiple scenes
+        //of different types or just add in a new enum. The second option is probably easier
+        let msg = match self.scene_curr {
+            SceneType::Intro    => self.mpc_intro.draw(ctx, &self.screen_center_xy),
+            SceneType::Cutscene => Ok(()),/*TODO add in call to the correct scene and fn*/
+            SceneType::Game     => Ok(()),/*TODO add in call to the correct scene and fn*/
+            SceneType::Menu     => Ok(()),/*TODO add in call to the correct scene and fn*/
+            SceneType::Pause    => Ok(()),/*TODO add in call to the correct scene and fn*/
+            SceneType::Credits  => Ok(()),/*TODO add in call to the correct scene and fn*/
+            SceneType::Exit     => {self.quit_flag = true; Ok(())},
+        };
+
+        if let Err(_) = msg {
+            panic!("Error in MainState draw call: {:?}", msg);
+        }
+
+        present(ctx); //Actually draws your draw calls
+        Ok(())
+    }
+    fn mouse_button_down_event(&mut self, ctx: &mut Context, button: MouseButton, x: i32, y: i32){
+        match self.scene_curr {
+            SceneType::Intro    => self.mpc_intro.mouse_button_down_event(ctx, button, x, y ),
+            SceneType::Cutscene => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Game     => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Menu     => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Pause    => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Credits  => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Exit     => {self.quit_flag = true; ()},
         }
     }
 
-    fn key_up_event(&mut self, _ctx: &mut Context, _keycode: event::Keycode, _keymod: event::Mod, _repeat: bool) {}
+    fn key_down_event(&mut self, ctx: &mut Context, keycode: event::Keycode, keymod: event::Mod, repeat: bool) {
+        //Here we sort into the correct call, you can add extra logic to sort through multiple scenes
+        //of different types or just add in a new enum. The second option is probably easier
+        match self.scene_curr {
+            SceneType::Intro    => self.mpc_intro.key_down_event(ctx, keycode, keymod, repeat),
+            SceneType::Cutscene => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Game     => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Menu     => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Pause    => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Credits  => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Exit     => {self.quit_flag = true; ()},
+        }
+    }
+
+    fn key_up_event(&mut self, ctx: &mut Context, keycode: event::Keycode, keymod: event::Mod, repeat: bool) {
+        //Here we sort into the correct call, you can add extra logic to sort through multiple scenes
+        //of different types or just add in a new enum. The second option is probably easier
+        match self.scene_curr {
+            SceneType::Intro    => self.mpc_intro.key_up_event(ctx, keycode, keymod, repeat),
+            SceneType::Cutscene => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Game     => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Menu     => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Pause    => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Credits  => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Exit     => {self.quit_flag = true; ()},
+        }
+    }
 
 }
 
-impl MainState{
+impl<'a> MainState<'a>{
 
     //This loads the first scene and stores the rest into a buffer variable
-    pub fn new (_cont: &mut Context) -> Self {
-        let mut scenes: Vec<SceneType> = make_scenes();
-        if scenes.is_empty(){
-            panic!("Empty scene buffer.");
+    pub fn new (ctx: &mut Context, scene_buf: &'a mut Cycle<Iter<'a,SceneType>>) -> Self {
+
+
+
+        //Scene allocations
+        let mpc1 = IntroMPC::new(ctx).expect("Cannot load IntroMPC");
+
+        //Checking first scene also moves iterator
+        let first_scene = scene_buf.next();
+        if first_scene == None {
+            panic!("Passed empty scene buffer to MainState, check utility_functions.");
         }
 
         //Note that remove will not fail here since we have guaranteed it will have at least one
-        //scene element to take out. Note that scene_buf CAN be empty
-        MainState{ scene_curr: scenes.remove(0), scene_buf: scenes}
+        //scene element to take out. Note that scene_buf CANNOT be empty since it is an iterator
+         let retval = MainState {
+            scene_curr: first_scene.unwrap(),
+            scene_circle_iter: scene_buf,
+            screen_center_xy: (ctx.conf.window_mode.width as f32 / 2.0, ctx.conf.window_mode.height as f32 / 2.0),
+            fps_target: 60,
+            quit_flag: false,
+            mpc_intro: mpc1,
+        };
 
+         retval
     }
 
 }

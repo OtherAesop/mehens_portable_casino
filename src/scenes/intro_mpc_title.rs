@@ -16,12 +16,12 @@
 
 //My imports
 use game_logic::scene_type::SceneType;
-use game_logic::utility_functions::safe_quit;
+use game_logic::utility_functions::{safe_quit, make_draw_param};
 
 //Ggez
-//use ggez::graphics;
-use ggez::graphics::{FilterMode,Image, Point2, DrawParam, Drawable, draw, set_default_filter};
+use ggez::graphics::*;
 use ggez::graphics::spritebatch::{SpriteBatch};
+use ggez::graphics::{FilterMode,Image, Point2, DrawParam, Drawable, draw, draw_ex, set_default_filter};
 
 use ggez::event;
 use ggez::event::{MouseButton, Keycode};
@@ -47,9 +47,15 @@ impl IntroMPC {
     }
     //We won't worry about clearing or drawing either since MainState handles that too
     pub fn draw(&mut self, ctx: &mut Context, screen_center: &(f32,f32)) -> GameResult<()> {
-        //self.background_mpc.draw(ctx, *screen_center, 0.0)?;
-        draw(ctx,&self.background_mpc, Point2::new(screen_center.0.clone(), screen_center.1.clone()), 0.0)?;
-        self.background_mpc.clone().draw(ctx, Point2::new(screen_center.0.clone(), screen_center.1.clone()), 0.0)?;
+
+
+
+        draw_ex(ctx,&self.background_mpc, self.background_mpc_param.clone())?;
+        //self.background_mpc.clone().draw(ctx, Point2::new(screen_center.0.clone(), screen_center.1.clone()), 0.0)?;
+        println!("Background color: {:?}", get_background_color(ctx));
+        println!("Foreground color: {:?}", get_color(ctx));
+        println!("Screen coordinates: {:?}", get_screen_coordinates(ctx));
+        self.background_mpc.clear();
         Ok(())
     }
 
@@ -69,8 +75,8 @@ impl IntroMPC {
         set_default_filter(ctx, FilterMode::Nearest);
 
 
-        let bg_spr = SpriteBatch::new(Image::new(ctx, "/MPC1.png")?);
-      //  bg_spr.set_filter(FilterMode::Linear);
+        let mut bg_spr = SpriteBatch::new(Image::new(ctx, "/MPC1.png")?);
+        bg_spr.add(make_draw_param((500.0,400.0), (1.0,1.0), 0.0));
 
 
         //Adapted from Line 305 - 311 of https://github.com/maccam912/thewizzerofoz/blob/master/src/main.rs

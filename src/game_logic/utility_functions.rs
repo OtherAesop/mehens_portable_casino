@@ -23,9 +23,21 @@ use game_logic::main_state;
 use ggez::conf::{WindowSetup, WindowMode};
 use ggez::{ContextBuilder, Context};
 
+use ggez::graphics::{FilterMode,Image, Point2, DrawParam, Drawable, draw, set_default_filter};
+
 //Std
 use std::env::var;
 use std::path::PathBuf;
+
+//Keeps code cleaner
+pub fn make_draw_param(dest: (f32,f32), scale: (f32,f32), rotation1: f32) -> DrawParam {
+    DrawParam{
+        dest: Point2::new(dest.0, dest.1),
+        scale: Point2::new(scale.0, scale.1),
+        rotation: rotation1,
+        ..Default::default()
+    }
+}
 
 //This is here to do stuff to the context based on flags set. Add whatever flags and info you need
 //to the parameters to do its work

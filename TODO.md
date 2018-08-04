@@ -11,3 +11,9 @@ I don't know if it is possible to implement event::EventHandler for something be
 the main game loop and divided by match statements. Ugly I know.
 
 4) I will cram as much as possible into functions to simplify it to the greatest extent possible 
+
+Update 8/3/18
+
+I have some art pieces and have gotten draw functions to work!
+
+Next is animations

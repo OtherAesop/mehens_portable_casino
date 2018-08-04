@@ -16,11 +16,11 @@
 
 //My imports
 use game_logic::scene_type::SceneType;
-use game_logic::utility_functions::safe_quit;
+use game_logic::utility_functions::{safe_quit, make_param};
 
 //Ggez
 //use ggez::graphics;
-use ggez::graphics::{FilterMode,Image, Point2, DrawParam, Drawable, draw, set_default_filter};
+use ggez::graphics::{FilterMode,Image, Point2, /*DrawParam, Drawable,*/ draw, set_default_filter};
 use ggez::graphics::spritebatch::{SpriteBatch};
 
 use ggez::event;
@@ -35,8 +35,8 @@ Here I define all the assets I will need to run a particular scene. This creates
 #[allow(unused)]
 pub struct IntroMPC {
     s_type: SceneType,
+    bg_mpc: Image,
     background_mpc: SpriteBatch,
-    background_mpc_param: DrawParam,
 }
 
 impl IntroMPC {
@@ -45,11 +45,12 @@ impl IntroMPC {
 
         Ok(())
     }
-    //We won't worry about clearing or drawing either since MainState handles that too
-    pub fn draw(&mut self, ctx: &mut Context, screen_center: &(f32,f32)) -> GameResult<()> {
-        //self.background_mpc.draw(ctx, *screen_center, 0.0)?;
-        draw(ctx,&self.background_mpc, Point2::new(screen_center.0.clone(), screen_center.1.clone()), 0.0)?;
-        self.background_mpc.clone().draw(ctx, Point2::new(screen_center.0.clone(), screen_center.1.clone()), 0.0)?;
+
+    //We won't worry about clearing or presenting either since MainState handles that too
+    //Also you MUST add params to your Spritebatch every draw call for it to render.
+    pub fn draw(&mut self, ctx: &mut Context, _screen_center: &(f32,f32)) -> GameResult<()> {
+        self.background_mpc.add(make_param());
+        draw(ctx,&self.background_mpc, Point2::new(0.0, 0.0), 0.0)?;
         Ok(())
     }
 
@@ -68,25 +69,15 @@ impl IntroMPC {
     pub fn new(ctx: &mut Context) -> GameResult<IntroMPC> {
         set_default_filter(ctx, FilterMode::Nearest);
 
-
-        let bg_spr = SpriteBatch::new(Image::new(ctx, "/MPC1.png")?);
-      //  bg_spr.set_filter(FilterMode::Linear);
-
-
-        //Adapted from Line 305 - 311 of https://github.com/maccam912/thewizzerofoz/blob/master/src/main.rs
-        let bg_param = DrawParam {
-            dest: Point2::new(0.0,0.0),
-            scale: Point2::new(1.0,1.0),
-            rotation: 0.0,
-            offset: Point2::new(0.0,0.0),
-            ..Default::default()
-        };
+        let bg = Image::new(ctx, "/MPC1.png")?;
+        let bg_spr = SpriteBatch::new(bg.clone());
 
 
         let x = IntroMPC {
             s_type: SceneType::Intro,
+            bg_mpc: bg,
             background_mpc: bg_spr,
-            background_mpc_param: bg_param,
+            //background_mpc_param: bg_param,
         };
         Ok(x)
     }

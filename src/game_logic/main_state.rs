@@ -38,13 +38,16 @@ use ggez::timer::check_update_time; //Gotta control FPS!
 use ggez::event;
 use ggez::event::{MouseButton};
 
-use ggez::graphics::{clear,present};
+use ggez::graphics::spritebatch::{SpriteBatch};
+use ggez::graphics::{Image,clear,present};
 
 //Std imports
 use std::slice::Iter;
 use std::iter::{Cycle, Iterator};
 
 //This is the core loop
+//Note that due to the way resources are loaded
+//all image data MUST be accessible here
 #[allow(unused)]
 pub struct MainState<'a>{
     //Scene Data
@@ -56,6 +59,7 @@ pub struct MainState<'a>{
     quit_flag: bool,
     //Intro Screen
     mpc_intro: IntroMPC,
+    test_bg: SpriteBatch,
 }
 
 impl<'a> event::EventHandler for MainState<'a>{
@@ -151,7 +155,8 @@ impl<'a> MainState<'a>{
     //This loads the first scene and stores the rest into a buffer variable
     pub fn new (ctx: &mut Context, scene_buf: &'a mut Cycle<Iter<'a,SceneType>>) -> Self {
 
-
+        let bg = Image::new(ctx, "/MPC1.png").expect("ahhhh");
+        let bg_spr = SpriteBatch::new(bg.clone());
 
         //Scene allocations
         let mpc1 = IntroMPC::new(ctx).expect("Cannot load IntroMPC");
@@ -171,6 +176,7 @@ impl<'a> MainState<'a>{
             fps_target: 60,
             quit_flag: false,
             mpc_intro: mpc1,
+             test_bg: bg_spr,
         };
 
          retval

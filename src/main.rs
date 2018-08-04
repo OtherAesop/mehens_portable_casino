@@ -69,8 +69,8 @@ fn main() {
 
     //Basic window settings, can be changed ingame
     let w_mode = WindowMode {
-        width: 1024,
-        height: 768,
+        width: 800,
+        height: 600,
         borderless: false,
         fullscreen_type: FullscreenType::Off,
         vsync: true,

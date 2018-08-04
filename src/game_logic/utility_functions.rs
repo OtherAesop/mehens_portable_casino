@@ -22,10 +22,22 @@ use game_logic::main_state;
 //Ggez
 use ggez::conf::{WindowSetup, WindowMode};
 use ggez::{ContextBuilder, Context};
+use ggez::graphics::{/*Image,*/ Point2, DrawParam};
 
 //Std
 use std::env::var;
 use std::path::PathBuf;
+
+pub fn make_param() -> DrawParam {
+    //Adapted from Line 305 - 311 of https://github.com/maccam912/thewizzerofoz/blob/master/src/main.rs
+    DrawParam {
+        dest: Point2::new(0.0,0.0),
+        scale: Point2::new(1.0,1.0),
+        rotation: 0.0,
+        offset: Point2::new(0.0,0.0),
+        ..Default::default()
+    }
+}
 
 //This is here to do stuff to the context based on flags set. Add whatever flags and info you need
 //to the parameters to do its work

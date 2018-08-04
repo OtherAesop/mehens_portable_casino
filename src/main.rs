@@ -61,7 +61,7 @@ fn main() {
     //the option to set these
     let w_setup = WindowSetup {
         title: "Mehen's Portable Casino".to_string(),
-        icon: "/placeholder_icon.png".to_string(),
+        icon: "/M_Studios.png".to_string(),
         resizable: false,
         allow_highdpi: true,
         samples: NumSamples::One, //anti-aliasing

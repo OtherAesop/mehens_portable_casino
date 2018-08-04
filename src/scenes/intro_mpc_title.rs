@@ -16,11 +16,11 @@
 
 //My imports
 use game_logic::scene_type::SceneType;
-use game_logic::utility_functions::{safe_quit, make_param};
+use game_logic::utility_functions::*;
 
 //Ggez
-//use ggez::graphics;
-use ggez::graphics::{FilterMode,Image, Point2, /*DrawParam, Drawable,*/ draw, set_default_filter};
+//use ggez::graphics::{Color, Text, Font, set_color};
+use ggez::graphics::{FilterMode,Image, Point2, draw, set_default_filter};
 use ggez::graphics::spritebatch::{SpriteBatch};
 
 use ggez::event;
@@ -28,6 +28,7 @@ use ggez::event::{MouseButton, Keycode};
 
 //use ggez::audio;
 use ggez::{Context, GameResult};
+//use ggez::timer;
 
 /*
 Here I define all the assets I will need to run a particular scene. This creates everything I need
@@ -35,13 +36,31 @@ Here I define all the assets I will need to run a particular scene. This creates
 #[allow(unused)]
 pub struct IntroMPC {
     s_type: SceneType,
-    bg_mpc: Image,
     background_mpc: SpriteBatch,
+    //Enter button variables
+    enter: SpriteBatch,
+    enter_offset: (f32,f32),
+    go_up_enter: bool,
+    //Title text variables
+    mpc_title: SpriteBatch,
+    //mpc_font: Font,
+    mpc_offset: (f32,f32),
+    go_up_mpc: bool,
 }
 
 impl IntroMPC {
     //We should not worry about framerate limiting here since MainState handles calls
-    pub fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
+    pub fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+
+        //Here we control the animation for the enter button
+        let new_pos = float_animation(0.2, -0.2, 0.03, self.enter_offset.1, self.go_up_enter, ctx);
+        self.enter_offset = (self.enter_offset.0, new_pos.1);
+        self.go_up_enter = new_pos.0;
+
+        //Here we control the title text/picture animation
+        let new_pos_title = float_animation(0.1, -0.1, 0.02, self.mpc_offset.1, self.go_up_mpc, ctx);
+        self.mpc_offset = (self.mpc_offset.0, new_pos_title.1);
+        self.go_up_mpc = new_pos_title.0;
 
         Ok(())
     }
@@ -49,8 +68,20 @@ impl IntroMPC {
     //We won't worry about clearing or presenting either since MainState handles that too
     //Also you MUST add params to your Spritebatch every draw call for it to render.
     pub fn draw(&mut self, ctx: &mut Context, _screen_center: &(f32,f32)) -> GameResult<()> {
-        self.background_mpc.add(make_param());
+        //Draws MPC on screen
+        self.background_mpc.add(make_def_param());
         draw(ctx,&self.background_mpc, Point2::new(0.0, 0.0), 0.0)?;
+        self.background_mpc.clear();
+
+        //Draws Enter button
+        self.enter.add(make_param((655.0,440.0), (0.55,0.5), 0.0, (0.0, self.enter_offset.1)));
+        draw(ctx,&self.enter, Point2::new(0.0, 0.0), 0.0)?;
+        self.enter.clear();
+
+        //Draws 'Mehen's Portable Casino' on screen
+        self.mpc_title.add(make_param((32.0,140.0), (1.0,1.0), 0.0, (0.0, self.mpc_offset.1)));
+        draw(ctx,&self.mpc_title, Point2::new(0.0, 0.0), 0.0)?;
+        self.mpc_title.clear();
         Ok(())
     }
 
@@ -67,17 +98,35 @@ impl IntroMPC {
 
 impl IntroMPC {
     pub fn new(ctx: &mut Context) -> GameResult<IntroMPC> {
+        //Note we should set defaults in each module so we can guarantee proper behavior
         set_default_filter(ctx, FilterMode::Nearest);
+        //set_color(ctx, Color::new(0.0,0.0,0.0,255.0) )?;
 
         let bg = Image::new(ctx, "/MPC1.png")?;
-        let bg_spr = SpriteBatch::new(bg.clone());
+        let bg_spr = SpriteBatch::new(bg);
 
+        let enter = Image::new(ctx, "/Enter.png")?;
+        let enter_spr = SpriteBatch::new(enter);
+
+        let title = Image::new(ctx, "/Mehens_Portable_Casino.png")?;
+        let title_spr = SpriteBatch::new(title);
+
+        //let mpc_typeface = Font::new(ctx, "/PressStart2P-Regular.ttf", 30)?;
+        //let mpc_text = Text::new(ctx, "Mehen's Portable Casino", &mpc_typeface)?;
+        //let mpc_spr = SpriteBatch::new(mpc_text.into_inner());
 
         let x = IntroMPC {
             s_type: SceneType::Intro,
-            bg_mpc: bg,
             background_mpc: bg_spr,
-            //background_mpc_param: bg_param,
+            //Enter button variables
+            enter: enter_spr,
+            enter_offset: (0.0,0.0),
+            go_up_enter: true,
+            //Title text variables
+            mpc_title: title_spr,
+            //mpc_font: mpc_typeface,
+            mpc_offset: (0.0,0.0),
+            go_up_mpc: false,
         };
         Ok(x)
     }

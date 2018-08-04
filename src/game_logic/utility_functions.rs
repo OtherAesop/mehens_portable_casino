@@ -23,18 +23,50 @@ use game_logic::main_state;
 use ggez::conf::{WindowSetup, WindowMode};
 use ggez::{ContextBuilder, Context};
 use ggez::graphics::{/*Image,*/ Point2, DrawParam};
+use ggez::timer;
 
 //Std
 use std::env::var;
 use std::path::PathBuf;
 
-pub fn make_param() -> DrawParam {
+//Controls the floating animation
+//go_up = true means go upwards, false means go downwards
+//Delta correction from Line 210 of https://github.com/maccam912/thewizzerofoz/blob/master/src/main.rs
+pub fn float_animation(max_x: f32, min_x: f32, speed: f32, offset: f32, go_up: bool, ctx: &Context) -> (bool,f32) {
+    let mut retval: (bool, f32) = (go_up, offset);
+
+    if go_up {
+        if offset >= max_x { retval.0 = false;}
+        retval.1 = offset + speed * timer::get_delta(ctx).subsec_nanos() as f32/1e8;
+    } else {
+        if offset <= min_x { retval.0 = true;}
+        retval.1 = offset - speed * timer::get_delta(ctx).subsec_nanos() as f32/1e8;
+    }
+
+    retval
+
+}
+
+//Makes the parameters for drawing in the top left corner of the screen
+pub fn make_def_param() -> DrawParam {
     //Adapted from Line 305 - 311 of https://github.com/maccam912/thewizzerofoz/blob/master/src/main.rs
     DrawParam {
         dest: Point2::new(0.0,0.0),
         scale: Point2::new(1.0,1.0),
         rotation: 0.0,
         offset: Point2::new(0.0,0.0),
+        ..Default::default()
+    }
+}
+
+//Makes any given parameters
+pub fn make_param(dest: (f32,f32), scale: (f32,f32), rot: f32, offset: (f32,f32),) -> DrawParam {
+    //Adapted from Line 305 - 311 of https://github.com/maccam912/thewizzerofoz/blob/master/src/main.rs
+    DrawParam {
+        dest: Point2::new(dest.0,dest.1),
+        scale: Point2::new(scale.0,scale.1),
+        rotation: rot,
+        offset: Point2::new(offset.0,offset.1),
         ..Default::default()
     }
 }

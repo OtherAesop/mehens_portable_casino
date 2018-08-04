@@ -34,6 +34,7 @@ use ggez::{Context};
 use ggez::error::{GameResult};
 
 use ggez::timer::check_update_time; //Gotta control FPS!
+use ggez::audio::Source;
 
 use ggez::event;
 use ggez::event::{MouseButton};
@@ -57,6 +58,9 @@ pub struct MainState<'a>{
     screen_center_xy: (f32,f32),
     fps_target: u32,
     quit_flag: bool,
+    music_played: bool,
+    //Game Song
+    bg_music: Source,
     //Intro Screen
     mpc_intro: IntroMPC,
     test_bg: SpriteBatch,
@@ -80,6 +84,12 @@ impl<'a> event::EventHandler for MainState<'a>{
 
             if let Err(_) = msg {
                 panic!("Error in MainState update call: {:?}", msg);
+            }
+
+            if !self.music_played {
+                self.bg_music.play()?;
+                self.bg_music.set_repeat(true);
+                self.music_played = true;
             }
 
             check_flags(ctx, &self.quit_flag);
@@ -161,6 +171,9 @@ impl<'a> MainState<'a>{
         //Scene allocations
         let mpc1 = IntroMPC::new(ctx).expect("Cannot load IntroMPC");
 
+        //Load background music
+        let bg_mus = Source::new(ctx, "/8bit Dungeon Level.ogg").expect("Cannot load background music.");
+
         //Checking first scene also moves iterator
         let first_scene = scene_buf.next();
         if first_scene == None {
@@ -175,8 +188,10 @@ impl<'a> MainState<'a>{
             screen_center_xy: (ctx.conf.window_mode.width as f32 / 2.0, ctx.conf.window_mode.height as f32 / 2.0),
             fps_target: 60,
             quit_flag: false,
+            music_played: false,
+            bg_music: bg_mus,
             mpc_intro: mpc1,
-             test_bg: bg_spr,
+            test_bg: bg_spr,
         };
 
          retval

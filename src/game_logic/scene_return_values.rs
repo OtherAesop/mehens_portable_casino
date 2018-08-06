@@ -15,13 +15,17 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /*
-Declaring our files as 'pub mod' here allows them to be 'use'd outside of here. In main.rs
-for example. Everything that you want to use must have the keyword 'pub', all the way down the function
-level.
+These are the various return values that scenes can have.
+1) Good means execution was a success and iteration should continue
+2) Finished means execution was a success and the next scene should be loaded
+3) Err means there was a fatal error and the String should contain a helpful hint
 */
 
-//Controls the state of the game. I.E. advances the game from one scene to the next
-pub mod main_state;
-pub mod scene_type;
-pub mod utility_functions;
-pub mod scene_return_values;
+//This allows us to format the SceneType with {:?} in println!(...)
+#[derive(Debug, PartialEq)]
+#[allow(unused)]
+pub enum SceneReturn {
+    Good,
+    Finished,
+    Err(String),
+}

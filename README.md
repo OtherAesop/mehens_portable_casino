@@ -30,19 +30,19 @@ Please note these rules are currently in rough draft form and may be changed in 
 
 ##### Setup
 
-Each player starts the game with a pool of 25,000 DC and a set of Dicecoins (a D2, D4, D6, D8, D10, D10P, D12, and D20.) 
-Any computer characters will start with a pool of 50,000 DC and a set of Dicecoins. 
+Each player starts the game with a set of Dicecoins (a D2, D4, D6, D8, D10, D10P, D12, and D20.) 
 
 ##### Betting Phase
 
 At the beginning of a turn, moving counter-clockwise and ending with the dealer or house if one exists, each player will
-select between 1 and 4 of their Dicecoins and put them into their playing field at the center of the table with a bet in DC.
+select between 1 and 2 of their Dicecoins and put them into their playing field at the center of the table while they
+bet at least one coin.
 
 ##### Raising Phase
 
 Turns will repeat like this until each player (and the house if applicable) have had a turn. Each player, beginning with
-the first player to take a turn and moving counter clockwise, will have the chance to raise their DC bet or pass. After 
-the last player raises or passes then whoever has the highest bet will select one of these options.
+the first player to take a turn and moving counter clockwise, will have the chance to raise additional Dicecoin. After 
+the last player raises or passes then whoever has bet the most dice will make one of the following calls.
 
 1) Coos (low)
 2) Pearls (high)
@@ -54,7 +54,7 @@ Each player then rolls the Dicecoin they put into the pool and adds the rolled n
 If Coos was selected then the player with the lowest rolled value wins.
 If Pearls was selected then the player with the highest rolled value wins.
 
-The winner then takes the entire pool of DC. In the event of a tie then the winners evenly split the bet, with any 
+The winner then takes the entire pool of Dicecoins. In the event of a tie then the winners evenly split the bet, with any 
 remainder going to the winner who is earliest in the playing order.
 
 ##### Purchase Phase

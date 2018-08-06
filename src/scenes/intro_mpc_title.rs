@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //My imports
-use game_logic::scene_type::SceneType;
+use game_logic::scene_return_values::SceneReturn;
 use game_logic::utility_functions::*;
 
 //Ggez
@@ -33,9 +33,8 @@ use ggez::{Context, GameResult};
 /*
 Here I define all the assets I will need to run a particular scene. This creates everything I need
 */
-#[allow(unused)]
 pub struct IntroMPC {
-    s_type: SceneType,
+    //Background image
     background_mpc: SpriteBatch,
     //Enter button variables
     enter: SpriteBatch,
@@ -87,9 +86,10 @@ impl IntroMPC {
 
     pub fn mouse_button_down_event(&mut self, _ctx: &mut Context, _button: MouseButton, _x: i32, _y: i32){}
 
-    pub fn key_down_event(&mut self, ctx: &mut Context, keycode: event::Keycode, _keymod: event::Mod, _repeat: bool) {
-        if keycode == Keycode::Return {
-            safe_quit(ctx);
+    pub fn key_down_event(&mut self, _ctx: &mut Context, keycode: event::Keycode, _keymod: event::Mod, _repeat: bool) -> SceneReturn{
+        match keycode {
+            Keycode::Return => SceneReturn::Finished,
+            _               => SceneReturn::Good,
         }
     }
 
@@ -116,7 +116,6 @@ impl IntroMPC {
         //let mpc_spr = SpriteBatch::new(mpc_text.into_inner());
 
         let x = IntroMPC {
-            s_type: SceneType::Intro,
             background_mpc: bg_spr,
             //Enter button variables
             enter: enter_spr,

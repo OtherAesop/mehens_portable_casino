@@ -26,31 +26,13 @@ mod scenes;
 
 //import the needed namespaces
 //DEBUG: these are included so the compiler goes over them.
-#[allow(unused_imports)]
+use game_logic::scene_type::SceneType;
 use game_logic::main_state::*;
-#[allow(unused_imports)]
-use game_logic::scene_type::*;
 use game_logic::utility_functions::*;
 
 //Ggez
 use ggez::conf::{WindowSetup, WindowMode, NumSamples, FullscreenType};
-#[allow(unused_imports)]
 use ggez::event;
-#[allow(unused_imports)]
-use ggez::{ContextBuilder, Context};
-//use ggez::error::{GameResult, GameError};
-//use ggez::graphics;
-//use ggez::event::*;
-
-//Std
-//use std::slice::Iter;
-//use std::iter::{Cycle};
-//use std::env;
-//use std::path;
-//use std;
-//use std::time;
-
-
 
 fn main() {
     //We need to store the scene Vec somewhere so we can make a circular iterator reference to it

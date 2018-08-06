@@ -72,7 +72,7 @@ pub fn make_param(dest: (f32,f32), scale: (f32,f32), rot: f32, offset: (f32,f32)
 }
 
 //This is here to do stuff to the context based on flags set. Add whatever flags and info you need
-//to the parameters to do its work
+//to the parameters to do its work. Probably not a good idea to pass in too much as it will get messy
 pub fn check_flags(ctx: &mut Context, quit: &bool) {
     if *quit {
         safe_quit(ctx);
@@ -92,16 +92,9 @@ pub fn safe_quit(ctx: &mut Context) {
 pub fn make_scenes() -> Vec<SceneType> {
     //Creates scene ordering for MainState to use to determine what to do
     let mut scenes: Vec<SceneType> = Vec::new();
-/*
+
     scenes.push(SceneType::Intro);
-    scenes.push(SceneType::Cutscene);
-    scenes.push(SceneType::Game);
-    scenes.push(SceneType::Menu);
-    scenes.push(SceneType::Pause);
-    scenes.push(SceneType::Credits);
-    scenes.push(SceneType::Exit);
-*/
-    scenes.push(SceneType::Intro);
+    //scenes.push(SceneType::Game);
     scenes.push(SceneType::Exit);
 
     scenes

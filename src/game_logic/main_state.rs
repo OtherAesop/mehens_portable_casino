@@ -25,7 +25,8 @@ TODO NOTE: self.scene_curr = self.scene_circle_iter.next().unwrap(); selects the
 */
 
 //My imports
-use SceneType;
+use game_logic::scene_type::SceneType;
+use game_logic::scene_return_values::SceneReturn;
 use game_logic::utility_functions::{check_flags};
 use scenes::intro_mpc_title::IntroMPC;
 
@@ -39,17 +40,14 @@ use ggez::audio::Source;
 use ggez::event;
 use ggez::event::{MouseButton};
 
-use ggez::graphics::spritebatch::{SpriteBatch};
-use ggez::graphics::{Image,clear,present};
+//use ggez::graphics::spritebatch::{SpriteBatch};
+use ggez::graphics::{clear,present};
 
 //Std imports
 use std::slice::Iter;
-use std::iter::{Cycle, Iterator};
+use std::iter::Cycle;
 
 //This is the core loop
-//Note that due to the way resources are loaded
-//all image data MUST be accessible here
-#[allow(unused)]
 pub struct MainState<'a>{
     //Scene Data
     scene_curr: &'a SceneType,
@@ -59,11 +57,12 @@ pub struct MainState<'a>{
     fps_target: u32,
     quit_flag: bool,
     music_played: bool,
+    load_next: bool,
     //Game Song
     bg_music: Source,
     //Intro Screen
     mpc_intro: IntroMPC,
-    test_bg: SpriteBatch,
+    //Game Screen
 }
 
 impl<'a> event::EventHandler for MainState<'a>{
@@ -74,12 +73,9 @@ impl<'a> event::EventHandler for MainState<'a>{
             //of different types or just add in a new enum. The second option is probably easier
             let msg = match self.scene_curr {
                 SceneType::Intro    => self.mpc_intro.update(ctx),
-                SceneType::Cutscene => Ok(()),/*TODO add in call to the correct scene and fn*/
                 SceneType::Game     => Ok(()),/*TODO add in call to the correct scene and fn*/
-                SceneType::Menu     => Ok(()),/*TODO add in call to the correct scene and fn*/
-                SceneType::Pause    => Ok(()),/*TODO add in call to the correct scene and fn*/
-                SceneType::Credits  => Ok(()),/*TODO add in call to the correct scene and fn*/
                 SceneType::Exit     => {self.quit_flag = true; Ok(())},
+                _                   => panic!("Unhandled scene type {:?} encountered in MainState update.", self.scene_curr),
             };
 
             if let Err(_) = msg {
@@ -90,6 +86,12 @@ impl<'a> event::EventHandler for MainState<'a>{
                 self.bg_music.play()?;
                 self.bg_music.set_repeat(true);
                 self.music_played = true;
+            }
+
+            //This is put here because cramming it into a function would be messier than 4 line of code here
+            if self.load_next {
+                self.load_next = false; //Reset the flag
+                self.scene_curr = self.scene_circle_iter.next().unwrap(); //Set in the next scene
             }
 
             check_flags(ctx, &self.quit_flag);
@@ -103,12 +105,9 @@ impl<'a> event::EventHandler for MainState<'a>{
         //of different types or just add in a new enum. The second option is probably easier
         let msg = match self.scene_curr {
             SceneType::Intro    => self.mpc_intro.draw(ctx, &self.screen_center_xy),
-            SceneType::Cutscene => Ok(()),/*TODO add in call to the correct scene and fn*/
             SceneType::Game     => Ok(()),/*TODO add in call to the correct scene and fn*/
-            SceneType::Menu     => Ok(()),/*TODO add in call to the correct scene and fn*/
-            SceneType::Pause    => Ok(()),/*TODO add in call to the correct scene and fn*/
-            SceneType::Credits  => Ok(()),/*TODO add in call to the correct scene and fn*/
             SceneType::Exit     => {self.quit_flag = true; Ok(())},
+            _                   => panic!("Unhandled scene type {:?} encountered in MainState draw.", self.scene_curr),
         };
 
         if let Err(_) = msg {
@@ -121,27 +120,28 @@ impl<'a> event::EventHandler for MainState<'a>{
     fn mouse_button_down_event(&mut self, ctx: &mut Context, button: MouseButton, x: i32, y: i32){
         match self.scene_curr {
             SceneType::Intro    => self.mpc_intro.mouse_button_down_event(ctx, button, x, y ),
-            SceneType::Cutscene => (),/*TODO add in call to the correct scene and fn*/
             SceneType::Game     => (),/*TODO add in call to the correct scene and fn*/
-            SceneType::Menu     => (),/*TODO add in call to the correct scene and fn*/
-            SceneType::Pause    => (),/*TODO add in call to the correct scene and fn*/
-            SceneType::Credits  => (),/*TODO add in call to the correct scene and fn*/
             SceneType::Exit     => {self.quit_flag = true; ()},
+            _                   => panic!("Unhandled scene type {:?} encountered in MainState draw.", self.scene_curr),
         }
     }
 
     fn key_down_event(&mut self, ctx: &mut Context, keycode: event::Keycode, keymod: event::Mod, repeat: bool) {
         //Here we sort into the correct call, you can add extra logic to sort through multiple scenes
         //of different types or just add in a new enum. The second option is probably easier
-        match self.scene_curr {
+        let scene_flag = match self.scene_curr {
             SceneType::Intro    => self.mpc_intro.key_down_event(ctx, keycode, keymod, repeat),
-            SceneType::Cutscene => (),/*TODO add in call to the correct scene and fn*/
-            SceneType::Game     => (),/*TODO add in call to the correct scene and fn*/
-            SceneType::Menu     => (),/*TODO add in call to the correct scene and fn*/
-            SceneType::Pause    => (),/*TODO add in call to the correct scene and fn*/
-            SceneType::Credits  => (),/*TODO add in call to the correct scene and fn*/
-            SceneType::Exit     => {self.quit_flag = true; ()},
+            SceneType::Game     => SceneReturn::Good,/*TODO add in call to the correct scene and fn*/
+            SceneType::Exit     => {self.quit_flag = true; SceneReturn::Good},
+            _                   => panic!("Unhandled scene type {:?} encountered in MainState draw.", self.scene_curr),
+        };
+
+        match scene_flag {
+            SceneReturn::Good => (),
+            SceneReturn::Finished => self.load_next = true,
+            SceneReturn::Err(x) => panic!("Error in MainState key_down_event call: {:?}", x),
         }
+
     }
 
     fn key_up_event(&mut self, ctx: &mut Context, keycode: event::Keycode, keymod: event::Mod, repeat: bool) {
@@ -149,12 +149,9 @@ impl<'a> event::EventHandler for MainState<'a>{
         //of different types or just add in a new enum. The second option is probably easier
         match self.scene_curr {
             SceneType::Intro    => self.mpc_intro.key_up_event(ctx, keycode, keymod, repeat),
-            SceneType::Cutscene => (),/*TODO add in call to the correct scene and fn*/
             SceneType::Game     => (),/*TODO add in call to the correct scene and fn*/
-            SceneType::Menu     => (),/*TODO add in call to the correct scene and fn*/
-            SceneType::Pause    => (),/*TODO add in call to the correct scene and fn*/
-            SceneType::Credits  => (),/*TODO add in call to the correct scene and fn*/
             SceneType::Exit     => {self.quit_flag = true; ()},
+            _                   => panic!("Unhandled scene type {:?} encountered in MainState draw.", self.scene_curr),
         }
     }
 
@@ -164,9 +161,6 @@ impl<'a> MainState<'a>{
 
     //This loads the first scene and stores the rest into a buffer variable
     pub fn new (ctx: &mut Context, scene_buf: &'a mut Cycle<Iter<'a,SceneType>>) -> Self {
-
-        let bg = Image::new(ctx, "/MPC1.png").expect("ahhhh");
-        let bg_spr = SpriteBatch::new(bg.clone());
 
         //Scene allocations
         let mpc1 = IntroMPC::new(ctx).expect("Cannot load IntroMPC");
@@ -189,9 +183,9 @@ impl<'a> MainState<'a>{
             fps_target: 60,
             quit_flag: false,
             music_played: false,
+            load_next: false,
             bg_music: bg_mus,
             mpc_intro: mpc1,
-            test_bg: bg_spr,
         };
 
          retval

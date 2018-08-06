@@ -19,16 +19,13 @@ use game_logic::scene_return_values::SceneReturn;
 use game_logic::utility_functions::*;
 
 //Ggez
-//use ggez::graphics::{Color, Text, Font, set_color};
 use ggez::graphics::{FilterMode,Image, Point2, draw, set_default_filter};
 use ggez::graphics::spritebatch::{SpriteBatch};
 
 use ggez::event;
 use ggez::event::{MouseButton, Keycode};
 
-//use ggez::audio;
 use ggez::{Context, GameResult};
-//use ggez::timer;
 
 /*
 Here I define all the assets I will need to run a particular scene. This creates everything I need
@@ -100,7 +97,6 @@ impl IntroMPC {
     pub fn new(ctx: &mut Context) -> GameResult<IntroMPC> {
         //Note we should set defaults in each module so we can guarantee proper behavior
         set_default_filter(ctx, FilterMode::Nearest);
-        //set_color(ctx, Color::new(0.0,0.0,0.0,255.0) )?;
 
         let bg = Image::new(ctx, "/MPC1.png")?;
         let bg_spr = SpriteBatch::new(bg);
@@ -111,10 +107,6 @@ impl IntroMPC {
         let title = Image::new(ctx, "/Mehens_Portable_Casino.png")?;
         let title_spr = SpriteBatch::new(title);
 
-        //let mpc_typeface = Font::new(ctx, "/PressStart2P-Regular.ttf", 30)?;
-        //let mpc_text = Text::new(ctx, "Mehen's Portable Casino", &mpc_typeface)?;
-        //let mpc_spr = SpriteBatch::new(mpc_text.into_inner());
-
         let x = IntroMPC {
             background_mpc: bg_spr,
             //Enter button variables
@@ -123,7 +115,6 @@ impl IntroMPC {
             go_up_enter: true,
             //Title text variables
             mpc_title: title_spr,
-            //mpc_font: mpc_typeface,
             mpc_offset: (0.0,0.0),
             go_up_mpc: false,
         };

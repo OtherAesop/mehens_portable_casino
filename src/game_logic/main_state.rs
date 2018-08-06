@@ -82,9 +82,11 @@ impl<'a> event::EventHandler for MainState<'a>{
                 panic!("Error in MainState update call: {:?}", msg);
             }
 
+            //Make sure to only execute this once.
             if !self.music_played {
-                self.bg_music.play()?;
+                //causes the music to loop forever, must be called before play()
                 self.bg_music.set_repeat(true);
+                self.bg_music.play()?;
                 self.music_played = true;
             }
 

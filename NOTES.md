@@ -4,4 +4,3 @@ Making Text with a given font
 
         //let mpc_typeface = Font::new(ctx, "/PressStart2P-Regular.ttf", 30)?;
         //let mpc_text = Text::new(ctx, "Mehen's Portable Casino", &mpc_typeface)?;
-

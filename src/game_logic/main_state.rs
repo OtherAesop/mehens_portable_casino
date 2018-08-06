@@ -138,6 +138,9 @@ impl<'a> event::EventHandler for MainState<'a>{
             _                   => panic!("Unhandled scene type {:?} encountered in MainState draw.", self.scene_curr),
         };
 
+        //Each scene now returns a value that tells you something about its status. We really
+        //just need a way to know when to go to the next scene. Add code like this to any call that you
+        //expect will trigger a scene transition
         match scene_flag {
             SceneReturn::Good => (),
             SceneReturn::Finished => self.load_next = true,

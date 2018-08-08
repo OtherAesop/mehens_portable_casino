@@ -29,6 +29,7 @@ use game_logic::scene_type::SceneType;
 use game_logic::scene_return_values::SceneReturn;
 use game_logic::utility_functions::{check_flags};
 use scenes::intro_mpc_title::IntroMPC;
+use scenes::dicecoin_mpc::DicecoinMPC;
 
 //Ggez imports
 use ggez::{Context};
@@ -40,7 +41,6 @@ use ggez::audio::Source;
 use ggez::event;
 use ggez::event::{MouseButton};
 
-//use ggez::graphics::spritebatch::{SpriteBatch};
 use ggez::graphics::{clear,present};
 
 //Std imports
@@ -63,6 +63,7 @@ pub struct MainState<'a>{
     //Intro Screen
     mpc_intro: IntroMPC,
     //Game Screen
+    mpc_dicecoin_game: DicecoinMPC,
 }
 
 impl<'a> event::EventHandler for MainState<'a>{
@@ -107,7 +108,7 @@ impl<'a> event::EventHandler for MainState<'a>{
         //of different types or just add in a new enum. The second option is probably easier
         let msg = match self.scene_curr {
             SceneType::Intro    => self.mpc_intro.draw(ctx, &self.screen_center_xy),
-            SceneType::Game     => Ok(()),/*TODO add in call to the correct scene and fn*/
+            SceneType::Game     => self.mpc_dicecoin_game.draw(ctx, &self.screen_center_xy),
             SceneType::Exit     => {self.quit_flag = true; Ok(())},
             _                   => panic!("Unhandled scene type {:?} encountered in MainState draw.", self.scene_curr),
         };
@@ -122,7 +123,7 @@ impl<'a> event::EventHandler for MainState<'a>{
     fn mouse_button_down_event(&mut self, ctx: &mut Context, button: MouseButton, x: i32, y: i32){
         match self.scene_curr {
             SceneType::Intro    => self.mpc_intro.mouse_button_down_event(ctx, button, x, y ),
-            SceneType::Game     => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Game     => self.mpc_dicecoin_game.mouse_button_down_event(ctx, button, x, y ),
             SceneType::Exit     => {self.quit_flag = true; ()},
             _                   => panic!("Unhandled scene type {:?} encountered in MainState draw.", self.scene_curr),
         }
@@ -133,7 +134,7 @@ impl<'a> event::EventHandler for MainState<'a>{
         //of different types or just add in a new enum. The second option is probably easier
         let scene_flag = match self.scene_curr {
             SceneType::Intro    => self.mpc_intro.key_down_event(ctx, keycode, keymod, repeat),
-            SceneType::Game     => SceneReturn::Good,/*TODO add in call to the correct scene and fn*/
+            SceneType::Game     => self.mpc_dicecoin_game.key_down_event(ctx, keycode, keymod, repeat),
             SceneType::Exit     => {self.quit_flag = true; SceneReturn::Good},
             _                   => panic!("Unhandled scene type {:?} encountered in MainState draw.", self.scene_curr),
         };
@@ -154,7 +155,7 @@ impl<'a> event::EventHandler for MainState<'a>{
         //of different types or just add in a new enum. The second option is probably easier
         match self.scene_curr {
             SceneType::Intro    => self.mpc_intro.key_up_event(ctx, keycode, keymod, repeat),
-            SceneType::Game     => (),/*TODO add in call to the correct scene and fn*/
+            SceneType::Game     => self.mpc_dicecoin_game.key_up_event(ctx, keycode, keymod, repeat),
             SceneType::Exit     => {self.quit_flag = true; ()},
             _                   => panic!("Unhandled scene type {:?} encountered in MainState draw.", self.scene_curr),
         }
@@ -169,6 +170,7 @@ impl<'a> MainState<'a>{
 
         //Scene allocations
         let mpc1 = IntroMPC::new(ctx).expect("Cannot load IntroMPC");
+        let mpc2 = DicecoinMPC::new(ctx).expect("Cannot load DicecoinMPC");
 
         //Load background music
         let bg_mus = Source::new(ctx, "/8bit Dungeon Level.ogg").expect("Cannot load background music.");
@@ -182,15 +184,16 @@ impl<'a> MainState<'a>{
         //Note that remove will not fail here since we have guaranteed it will have at least one
         //scene element to take out. Note that scene_buf CANNOT be empty since it is an iterator
          let retval = MainState {
-            scene_curr: first_scene.unwrap(),
-            scene_circle_iter: scene_buf,
-            screen_center_xy: (ctx.conf.window_mode.width as f32 / 2.0, ctx.conf.window_mode.height as f32 / 2.0),
-            fps_target: 60,
-            quit_flag: false,
-            music_played: false,
-            load_next: false,
-            bg_music: bg_mus,
-            mpc_intro: mpc1,
+             scene_curr: first_scene.unwrap(),
+             scene_circle_iter: scene_buf,
+             screen_center_xy: (ctx.conf.window_mode.width as f32 / 2.0, ctx.conf.window_mode.height as f32 / 2.0),
+             fps_target: 60,
+             quit_flag: false,
+             music_played: false,
+             load_next: false,
+             bg_music: bg_mus,
+             mpc_intro: mpc1,
+             mpc_dicecoin_game: mpc2,
         };
 
          retval

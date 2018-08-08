@@ -25,42 +25,31 @@ use ggez::graphics::spritebatch::{SpriteBatch};
 use ggez::event;
 use ggez::event::{MouseButton, Keycode};
 
+use ggez::audio::Source;
+
 use ggez::{Context, GameResult};
 
-use ggez::audio::Source;
 /*
-Here I define all the assets I will need to run a particular scene. This creates everything I need
+Here I define all the assets I will need to run a particular scene.
 */
-pub struct IntroMPC {
+
+pub struct DicecoinMPC {
     //Background image
-    background_mpc: SpriteBatch,
+    background_dc_mpc: SpriteBatch,
     //Sounds
     bad_boop: Source,
     good_boop: Source,
-    //Enter button variables
+    //Enter buttons
     enter: SpriteBatch,
-    enter_offset: (f32,f32),
-    go_up_enter: bool,
-    //Title text variables
-    mpc_title: SpriteBatch,
-    //mpc_font: Font,
-    mpc_offset: (f32,f32),
-    go_up_mpc: bool,
+    enter_flipped: SpriteBatch,
+
 }
 
-impl IntroMPC {
+#[allow(unused_variables)]
+#[allow(dead_code)]
+impl DicecoinMPC {
     //We should not worry about framerate limiting here since MainState handles calls
     pub fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-
-        //Here we control the animation for the enter button
-        let new_pos = float_animation(0.2, -0.2, 0.03, self.enter_offset.1, self.go_up_enter, ctx);
-        self.enter_offset = (self.enter_offset.0, new_pos.1);
-        self.go_up_enter = new_pos.0;
-
-        //Here we control the title text/picture animation
-        let new_pos_title = float_animation(0.1, -0.1, 0.02, self.mpc_offset.1, self.go_up_mpc, ctx);
-        self.mpc_offset = (self.mpc_offset.0, new_pos_title.1);
-        self.go_up_mpc = new_pos_title.0;
 
         Ok(())
     }
@@ -69,19 +58,14 @@ impl IntroMPC {
     //Also you MUST add params to your Spritebatch every draw call for it to render.
     pub fn draw(&mut self, ctx: &mut Context, _screen_center: &(f32,f32)) -> GameResult<()> {
         //Draws MPC on screen
-        self.background_mpc.add(make_def_param());
-        draw(ctx,&self.background_mpc, Point2::new(0.0, 0.0), 0.0)?;
-        self.background_mpc.clear();
+        self.background_dc_mpc.add(make_def_param());
+        draw(ctx,&self.background_dc_mpc, Point2::new(0.0, 0.0), 0.0)?;
+        self.background_dc_mpc.clear();
 
-        //Draws Enter button
-        self.enter.add(make_param((655.0,440.0), (0.55,0.5), 0.0, (0.0, self.enter_offset.1)));
-        draw(ctx,&self.enter, Point2::new(0.0, 0.0), 0.0)?;
-        self.enter.clear();
+        //Draws Enter button on screen
 
-        //Draws 'Mehen's Portable Casino' on screen
-        self.mpc_title.add(make_param((32.0,140.0), (1.0,1.0), 0.0, (0.0, self.mpc_offset.1)));
-        draw(ctx,&self.mpc_title, Point2::new(0.0, 0.0), 0.0)?;
-        self.mpc_title.clear();
+        //Draws EnterReverse button on screen
+
         Ok(())
     }
 
@@ -89,49 +73,42 @@ impl IntroMPC {
 
     pub fn key_down_event(&mut self, _ctx: &mut Context, keycode: event::Keycode, _keymod: event::Mod, _repeat: bool) -> SceneReturn{
         match keycode {
-            Keycode::Return => {
-                safe_play(&self.good_boop);
-                SceneReturn::Finished
-            },
-            _               => {
-                safe_play(&self.bad_boop);
-                SceneReturn::Good
-            },
+            Keycode::Return => SceneReturn::Finished,
+            _               => SceneReturn::Good,
         }
     }
 
     pub fn key_up_event(&mut self, _ctx: &mut Context, _keycode: event::Keycode, _keymod: event::Mod, _repeat: bool) {}
 }
 
-impl IntroMPC {
-    pub fn new(ctx: &mut Context) -> GameResult<IntroMPC> {
+impl DicecoinMPC {
+    pub fn new(ctx: &mut Context) -> GameResult<DicecoinMPC> {
         //Note we should set defaults in each module so we can guarantee proper behavior
         set_default_filter(ctx, FilterMode::Nearest);
 
-        let bg = Image::new(ctx, "/MPC1.png")?;
+        //Background allocation
+        let bg = Image::new(ctx, "/Dicecoin GameBoard.png")?;
         let bg_spr = SpriteBatch::new(bg);
 
+        //Enter button allocations
         let enter = Image::new(ctx, "/Enter.png")?;
-        let enter_spr = SpriteBatch::new(enter);
+        let enter_spr = SpriteBatch::new(bg);
+        let enter_flipped = Image::new(ctx, "/EnterReverse.png")?;
+        let enter_flipped_spr = SpriteBatch::new(bg);
 
-        let title = Image::new(ctx, "/Mehens_Portable_Casino.png")?;
-        let title_spr = SpriteBatch::new(title);
-
+        //Sound allocations
         let b_boop = Source::new(ctx, "/beep4.ogg")?;
         let g_boop = Source::new(ctx, "/Bleep Sound.wav")?;
 
-        let x = IntroMPC {
-            background_mpc: bg_spr,
+        let x = DicecoinMPC {
+            //Background
+            background_dc_mpc: bg_spr,
+            //Sounds
             bad_boop: b_boop,
             good_boop: g_boop,
-            //Enter button variables
-            enter: enter_spr,
-            enter_offset: (0.0,0.0),
-            go_up_enter: true,
-            //Title text variables
-            mpc_title: title_spr,
-            mpc_offset: (0.0,0.0),
-            go_up_mpc: false,
+            //Enter buttons
+            enter: SpriteBatch,
+            enter_flipped: SpriteBatch,
         };
         Ok(x)
     }

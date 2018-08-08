@@ -24,10 +24,18 @@ use ggez::conf::{WindowSetup, WindowMode};
 use ggez::{ContextBuilder, Context};
 use ggez::graphics::{/*Image,*/ Point2, DrawParam};
 use ggez::timer;
+use ggez::audio::Source;
 
 //Std
 use std::env::var;
 use std::path::PathBuf;
+
+//Prevents the player from queueing up noises when an audio source is played with this
+pub fn safe_play (sound: &Source) {
+    if !sound.playing() {
+        sound.play().expect("Cannot play sound inside safe_play");
+    }
+}
 
 //Controls the floating animation
 //go_up = true means go upwards, false means go downwards
@@ -94,7 +102,7 @@ pub fn make_scenes() -> Vec<SceneType> {
     let mut scenes: Vec<SceneType> = Vec::new();
 
     scenes.push(SceneType::Intro);
-    //scenes.push(SceneType::Game);
+    scenes.push(SceneType::Game);
     scenes.push(SceneType::Exit);
 
     scenes

@@ -14,6 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//pub mod credits;
-
 pub mod intro_mpc_title;
+pub mod dicecoin_mpc;

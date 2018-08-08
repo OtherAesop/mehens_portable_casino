@@ -17,7 +17,7 @@
 /*
 These are the various return values that scenes can have.
 1) Good means execution was a success and iteration should continue
-2) Finished means execution was a success and the next scene should be loaded
+2) Finished means execution was a success and the next thing should be loaded/executed
 3) Err means there was a fatal error and the String should contain a helpful hint
 */
 

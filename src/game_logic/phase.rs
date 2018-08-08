@@ -15,16 +15,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /*
-Declaring our files as 'pub mod' here allows them to be 'use'd outside of here. In main.rs
-for example. Everything that you want to use must have the keyword 'pub', all the way down the function
-level.
+Defines phases as enums because yay abstraction right? Need PartialEq to do tests for equality in Dicecoin game
 */
 
-//Controls the state of the game. I.E. advances the game from one scene to the next
-pub mod main_state;
-pub mod phase;
-pub mod player;
-pub mod scene_type;
-pub mod scene_return_values;
-pub mod turns;
-pub mod utility_functions;
+#[allow(unused)]
+#[derive(PartialEq)]
+pub enum Phase {
+    Betting,
+    Raising,
+    Rolling,
+}

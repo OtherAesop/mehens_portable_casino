@@ -16,8 +16,10 @@
 
 //My imports
 use SceneType;
-#[allow(unused_imports)]
-use game_logic::main_state;
+use gambling::dice_type::DiceType;
+use game_logic::turns::Turn;
+use game_logic::phase::Phase;
+use game_logic::player::Player;
 
 //Ggez
 use ggez::conf::{WindowSetup, WindowMode};
@@ -29,6 +31,167 @@ use ggez::audio::Source;
 //Std
 use std::env::var;
 use std::path::PathBuf;
+
+//Rand
+use rand::{thread_rng,Rng};
+
+//Distributes the winnings to the winner, returns false if there was an overflow error
+#[allow(unused)] // retval really isn't useful here at all but we always want to have the option to check return values
+pub fn win(p1: &mut Player, p2: &mut Player, winner: &Turn) -> bool{
+    let mut retval = true;
+
+    //Clones p1 and p2's dice info so we don't need to mutably borrow it
+    //Ugly but functional for now
+    let mut p1_temp_dice: Vec<DiceType> = Vec::new();
+    for x in p1.check_bet().iter() {
+        match x {
+            DiceType::D2    => p1_temp_dice.push(DiceType::D2),
+            DiceType::D4    => p1_temp_dice.push(DiceType::D4),
+            DiceType::D6    => p1_temp_dice.push(DiceType::D6),
+            DiceType::D8    => p1_temp_dice.push(DiceType::D8),
+            DiceType::D10   => p1_temp_dice.push(DiceType::D10),
+            DiceType::D10p  => p1_temp_dice.push(DiceType::D10p),
+            DiceType::D12   => p1_temp_dice.push(DiceType::D12),
+            DiceType::D20   => p1_temp_dice.push(DiceType::D20),
+            //_             => panic!("Unhandled DiceType in winner - p1"),
+        }
+    }
+    p1.clear_bet();
+
+    let mut p2_temp_dice: Vec<DiceType> = Vec::new();;
+    for y in p2.check_bet().iter() {
+        match y {
+            DiceType::D2    => p2_temp_dice.push(DiceType::D2),
+            DiceType::D4    => p2_temp_dice.push(DiceType::D4),
+            DiceType::D6    => p2_temp_dice.push(DiceType::D6),
+            DiceType::D8    => p2_temp_dice.push(DiceType::D8),
+            DiceType::D10   => p2_temp_dice.push(DiceType::D10),
+            DiceType::D10p  => p2_temp_dice.push(DiceType::D10p),
+            DiceType::D12   => p2_temp_dice.push(DiceType::D12),
+            DiceType::D20   => p2_temp_dice.push(DiceType::D20),
+            //_             => panic!("Unhandled DiceType in winner - p1"),
+        }
+    }
+    p2.clear_bet();
+
+    //Due to guards deeper below, an overflow in score (which is impossible anyway) will only
+    //cause the score to stay at the max value. Values checked because good programming.
+    match winner {
+        Turn::Player1 => {
+            //Add P1's dice back to their bank
+            retval = p1.get_dice(&p1_temp_dice);
+            //Add P2's dice to P1's bank
+            retval = p1.get_dice(&p2_temp_dice);
+        },
+        Turn::Player2 => {
+            //Add P2's dice back to their bank
+            retval = p2.get_dice(&p2_temp_dice);
+            //Add P1's dice to P2's bank
+            retval = p2.get_dice(&p1_temp_dice);
+        },
+        //_             => panic!("Unhandled Turn in winner - winner match statement"),
+    }
+
+    retval
+}
+
+//Evaluates the game on the Coos condition, returns the winner
+pub fn evaluate_coos (p1: &Player, p2: &Player) -> Turn {
+    let retval;
+
+    if p1.roll_result > p2.roll_result {
+        retval = Turn::Player2;
+    } else if p1.roll_result < p2.roll_result {
+        retval = Turn::Player1;
+    } else {
+        //[0,1], randomly determines winner since they are equal
+        retval = match thread_rng().gen_range(0, 2) {
+            0 => Turn::Player1,
+            1 => Turn::Player2,
+            _ => panic!("Unhandled player case in high_roller"),
+        }
+    }
+
+    retval
+}
+
+//Evaluates the game on the Pearls condition, returns the winner
+pub fn evaluate_pearls (p1: &Player, p2: &Player) -> Turn {
+    let retval;
+
+    if p1.roll_result > p2.roll_result {
+        retval = Turn::Player1;
+    } else if p1.roll_result < p2.roll_result {
+        retval = Turn::Player2;
+    } else {
+        //[0,1], randomly determines winner since they are equal
+        retval = match thread_rng().gen_range(0, 2) {
+            0 => Turn::Player1,
+            1 => Turn::Player2,
+            _ => panic!("Unhandled player case in high_roller"),
+        }
+    }
+
+    retval
+
+}
+
+//Checks players for conditions required to advance a players turn. True when ready to advance
+//Note since the third phase can end only after a player makes a choice this can only check
+//for two conditions
+pub fn check_advance_conditions (p1: &Player) -> (bool,bool) {
+    let mut betting_flag = false;
+    let mut raising_flag = false;
+    let rolling_dice_num = p1.check_rolling_dice().len(); // Checks number of dice in rolling pool
+    let betted_dice_num = p1.check_bet().len(); //Checks number of dice betted
+
+    if rolling_dice_num > 0 && rolling_dice_num < 3 { // [1,2]
+        betting_flag = true;
+    }
+    if betted_dice_num > 0 && betted_dice_num < 9 {
+        raising_flag = true;
+    }
+
+    (betting_flag, raising_flag)
+}
+
+//Determines who the highest better is between two players or decides randomly if even
+//Again, turns are used because they are an exhaustive list of all possible players
+pub fn high_roller(p1: &Player, p2: &Player) -> Turn {
+    let p1_dice_count = p1.check_bet().len();
+    let p2_dice_count = p2.check_bet().len();
+    let retval;
+
+    if p1_dice_count > p2_dice_count {
+        retval = Turn::Player1;
+    } else if p1_dice_count < p2_dice_count{
+        retval = Turn::Player2;
+    } else {
+        //[0,1], randomly determines high roller
+        retval = match thread_rng().gen_range(0, 2) {
+            0 => Turn::Player1,
+            1 => Turn::Player2,
+            _ => panic!("Unhandled player case in high_roller"),
+        }
+    }
+
+    retval
+}
+
+//Transitions turnphases appropriately and returns new turnphase
+pub fn transition_turnphase (turn: &Turn, phase: &Phase) -> (Turn, Phase){
+    let turnphase = (turn, phase);
+
+    match turnphase {
+        (Turn::Player1, Phase::Betting)   => (Turn::Player2, Phase::Betting),
+        (Turn::Player2, Phase::Betting)   => (Turn::Player1, Phase::Raising),
+        (Turn::Player1, Phase::Raising)   => (Turn::Player2, Phase::Raising),
+        (Turn::Player2, Phase::Raising)   => (Turn::Player1, Phase::Rolling),
+        (Turn::Player1, Phase::Rolling)   => (Turn::Player2, Phase::Rolling),
+        (Turn::Player2, Phase::Rolling)   => (Turn::Player1, Phase::Betting),
+        //_               => panic!("Unhandled turnphase in transition_turnphase."),
+    }
+}
 
 //Prevents the player from queueing up noises when an audio source is played with this
 pub fn safe_play (sound: &Source) {

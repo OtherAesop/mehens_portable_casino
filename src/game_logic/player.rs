@@ -30,6 +30,10 @@ pub fn roll_dice() -> bool -- attempts to roll all dice in rolling pool and sets
 pub fn bet_rolling_dice(dice: DiceType) -> bool - Subtracts a dice from the Dicecoin Bank and adds it to the Dicecoins in the rolling pool, returns true if possible and false if not
 pub fn check_rolling_dice() -> &Vec<DiceType> - returns an immutable reference to the dice in the rolling pool
 pub fn clear_rolling_dice() - empties the dice in the rolling pool
+
+###Dicecoin utility functions###
+    pub fn check_dice_total(&self) -> &u32 - returns the total number of held dice
+    fn update_dice_total (&mut self) - called when there is a change to dice numbers to update the dice total
 */
 
 /*
@@ -68,7 +72,7 @@ pub struct Player {
     pub total_dice: u32,
     //Dicecoin in rolling pool (is that a word?) (These are the Dicecoins being set to be rolled)
     rolling_dice: Vec<DiceType>,
-    roll_result: u64,
+    pub roll_result: u64,
     //Dicecoins gambled (as in like a cash bet) and roll result
     gambled_dice: Vec<DiceType>,
 
@@ -76,6 +80,7 @@ pub struct Player {
 
 //Removing this can cause a bunch of unused warnings because the unused warning is applied transitively
 //I.E. if a function is unused in something else here, everything in it is unused as well and triggers a warning
+//See here for more https://github.com/rust-lang/rust/issues/18618#issuecomment-61709955
 #[allow(unused)]
 impl Player {
     pub fn new() -> Self {
@@ -111,7 +116,7 @@ impl Player {
     //###Dicecoins in betting pool###
     //Subtracts a dice from the Dicecoin Bank and adds it to the Dicecoins gambled, returns true if possible and false if not
     pub fn bet_dice(&mut self, dice: DiceType) -> bool {
-        match dice {
+        let retval = match dice {
             DiceType::D2 => {
                 if self.d2_count > 0 && self.gambled_dice.len() < MAX_GAMBLE_DICE {
                     self.d2_count - 1;
@@ -185,7 +190,12 @@ impl Player {
                 }
             },
             //_               => panic!("Unhandled DiceType in bet_dice"),
-        }
+        };
+
+        //Need to keep track of dice total
+        self.update_dice_total();
+
+        retval
     }
 
     //Adds all dice in dice_vec to the players bank if possible and returns true if no overflow, false otherwise
@@ -206,6 +216,9 @@ impl Player {
                 //_               => panic!("Unhandled DiceType in get_dice"),
             }
         }
+
+        //Need to keep track of dice total
+        self.update_dice_total();
 
         retval
     }
@@ -255,7 +268,7 @@ impl Player {
 
 
     pub fn bet_rolling_dice(&mut self, dice: DiceType) -> bool {
-        match dice {
+        let retval = match dice {
             DiceType::D2 => {
                 if self.d2_count > 0 && self.rolling_dice.len() < MAX_ROLL_DICE {
                     self.d2_count - 1;
@@ -329,8 +342,21 @@ impl Player {
                 }
             },
             //_               => panic!("Unhandled DiceType in bet_dice"),
-        }
+        };
+
+        //Need to keep track of dice total
+        self.update_dice_total();
+
+        retval
     }
     pub fn check_rolling_dice(&self) -> &Vec<DiceType> { &self.rolling_dice }
     pub fn clear_rolling_dice(&mut self) { self.rolling_dice.clear(); }
+
+    pub fn check_dice_total(&self) -> &u32 {
+        &self.total_dice
+    }
+
+    fn update_dice_total (&mut self) {
+        self.total_dice = self.d2_count + self.d4_count + self.d6_count + self.d8_count + self.d10_count + self.d10p_count + self.d12_count + self.d20_count;
+    }
 }

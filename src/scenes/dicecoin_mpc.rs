@@ -39,9 +39,13 @@ pub struct DicecoinMPC {
     //Sounds
     bad_boop: Source,
     good_boop: Source,
-    //Enter buttons
+    //Enter buttons and offset variables
     enter: SpriteBatch,
-    enter_flipped: SpriteBatch,
+    enter_offset: (f32,f32),
+    go_up_enter: bool,
+    enter_flip: SpriteBatch,
+    enter_flip_offset: (f32,f32),
+    go_up_enter_flip: bool,
 
 }
 
@@ -63,8 +67,14 @@ impl DicecoinMPC {
         self.background_dc_mpc.clear();
 
         //Draws Enter button on screen
+        self.enter.add(make_param((649.0,414.0), (1.0,1.0), 0.0, (0.0, self.enter_offset.1)));
+        draw(ctx,&self.enter, Point2::new(0.0, 0.0), 0.0)?;
+        self.enter.clear();
 
         //Draws EnterReverse button on screen
+        self.enter_flip.add(make_param((36.0,34.0), (1.0,1.0), 0.0, (0.0, self.enter_flip_offset.1)));
+        draw(ctx,&self.enter_flip, Point2::new(0.0, 0.0), 0.0)?;
+        self.enter_flip.clear();
 
         Ok(())
     }
@@ -91,10 +101,10 @@ impl DicecoinMPC {
         let bg_spr = SpriteBatch::new(bg);
 
         //Enter button allocations
-        let enter = Image::new(ctx, "/Enter.png")?;
-        let enter_spr = SpriteBatch::new(bg);
+        let enter = Image::new(ctx, "/EnterAdjusted.png")?;
+        let enter_spr = SpriteBatch::new(enter);
         let enter_flipped = Image::new(ctx, "/EnterReverse.png")?;
-        let enter_flipped_spr = SpriteBatch::new(bg);
+        let enter_flipped_spr = SpriteBatch::new(enter_flipped);
 
         //Sound allocations
         let b_boop = Source::new(ctx, "/beep4.ogg")?;
@@ -106,9 +116,13 @@ impl DicecoinMPC {
             //Sounds
             bad_boop: b_boop,
             good_boop: g_boop,
-            //Enter buttons
-            enter: SpriteBatch,
-            enter_flipped: SpriteBatch,
+            //Enter buttons and environment variables
+            enter: enter_spr,
+            enter_offset: (0.0,0.0),
+            go_up_enter: true,
+            enter_flip: enter_flipped_spr,
+            enter_flip_offset: (0.0,0.0),
+            go_up_enter_flip: true,
         };
         Ok(x)
     }

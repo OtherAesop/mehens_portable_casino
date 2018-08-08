@@ -20,10 +20,6 @@ and progression conditions that allow them to insert game scenes as they please 
 to tell the story or whatever
 */
 
-/*
-TODO NOTE: self.scene_curr = self.scene_circle_iter.next().unwrap(); selects the next scene
-*/
-
 //My imports
 use game_logic::scene_type::SceneType;
 use game_logic::scene_return_values::SceneReturn;
@@ -74,7 +70,7 @@ impl<'a> event::EventHandler for MainState<'a>{
             //of different types or just add in a new enum. The second option is probably easier
             let msg = match self.scene_curr {
                 SceneType::Intro    => self.mpc_intro.update(ctx),
-                SceneType::Game     => Ok(()),/*TODO add in call to the correct scene and fn*/
+                SceneType::Game     => self.mpc_dicecoin_game.update(ctx),
                 SceneType::Exit     => {self.quit_flag = true; Ok(())},
                 _                   => panic!("Unhandled scene type {:?} encountered in MainState update.", self.scene_curr),
             };

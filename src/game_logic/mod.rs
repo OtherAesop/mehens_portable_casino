@@ -22,6 +22,7 @@ level.
 
 //Controls the state of the game. I.E. advances the game from one scene to the next
 pub mod main_state;
+pub mod player;
 pub mod scene_type;
-pub mod utility_functions;
 pub mod scene_return_values;
+pub mod utility_functions;

@@ -15,9 +15,17 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /*
-Declaring our files as 'pub mod' here allows them to be 'use'd outside of here. In main.rs
-for example.
+This just lets me make a Vec that lets me know which dice are being betted
 */
 
-pub mod dice_type;
-pub mod dicecoins;
+#[allow(unused)]
+pub enum DiceType {
+    D2,
+    D4,
+    D6,
+    D8,
+    D10,
+    D10p,
+    D12,
+    D20,
+}

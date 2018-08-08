@@ -17,6 +17,9 @@
 //My imports
 use game_logic::scene_return_values::SceneReturn;
 use game_logic::utility_functions::*;
+//We handle the dice by enums 'cuz that can be controlled easily
+#[allow(unused_imports)]
+use gambling::dice_type::DiceType;
 
 //Ggez
 use ggez::graphics::{FilterMode,Image, Point2, draw, set_default_filter};
@@ -46,6 +49,7 @@ pub struct DicecoinMPC {
     enter_flip: SpriteBatch,
     enter_flip_offset: (f32,f32),
     go_up_enter_flip: bool,
+    //Environment variables
 
 }
 
@@ -54,6 +58,16 @@ pub struct DicecoinMPC {
 impl DicecoinMPC {
     //We should not worry about framerate limiting here since MainState handles calls
     pub fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+
+        //Here we control the animation for the enter button
+        let new_pos = float_animation(0.15, -0.15, 0.03, self.enter_offset.1, self.go_up_enter, ctx);
+        self.enter_offset = (self.enter_offset.0, new_pos.1);
+        self.go_up_enter = new_pos.0;
+
+        //Here we control the animation for the flipped enter button
+        let new_pos_flip = float_animation(0.15, -0.15, 0.03, self.enter_flip_offset.1, self.go_up_enter_flip, ctx);
+        self.enter_flip_offset = (self.enter_flip_offset.0, new_pos_flip.1);
+        self.go_up_enter_flip = new_pos_flip.0;
 
         Ok(())
     }
@@ -122,7 +136,7 @@ impl DicecoinMPC {
             go_up_enter: true,
             enter_flip: enter_flipped_spr,
             enter_flip_offset: (0.0,0.0),
-            go_up_enter_flip: true,
+            go_up_enter_flip: false, //It looks better to have them travelling in opposite directions methinks
         };
         Ok(x)
     }

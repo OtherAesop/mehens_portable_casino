@@ -82,6 +82,23 @@ Dicecoins without rolled values at exchanges or transferred once like normal cur
 Dicecoins while requiring that once rolled they must be spent and then used to purchase new Dicecoins. Additionally you
 can require that they be rolled at the time of purchase if that fits your implementation purposes.
 
+### Dicecoin Canonical Definition
+
+I modeled my version of Dicecoin such that the expected values of each dice are roughly equivalent to the various
+values of Euros, excluding a few I had no need for. Note that I consider the percentile dice to be an obsolete
+coin since its expected value is so low that I imagined they would be the rough equivalent of the US penny or Japanese ¥1
+coin but have included them because why not?
+
+Canonical Dicecoin Definitions (note D stands for dice and the number stands for the number of faces, and P stands for percentile)
+1) D2 - 1, 4000                                                                 (Expected Value: 2000.5)
+2) D4 - 1, 750, 1500, 2000                                                      (Expected Value: 1062.75)
+3) D6 - 1, 200, 400, 600, 800, 1000                                             (Expected Value: 500.2)
+4) D8 - 1, 15, 30, 45, 60, 75, 90, 500                                          (Expected Value: 102)
+5) D10 - 1, 20, 30, 40, 50, 60, 70, 80, 90, 100                                 (Expected Value: 54.1)
+6) D10P - 1, 2, 3, 4, 5, 6, 7, 8, 9, 10                                         (Expected Value: 5.5)
+7) D12 - 1, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 50                            (Expected Value: 22.6)
+8) D20 - 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20  (Expected Value: 10.5)
+
 ## Documentation
 
 A problem I ran into when first starting with Rust as a tool for game development was that there were no well commented

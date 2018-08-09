@@ -183,7 +183,7 @@ impl PlayerAssets {
     }
 
     //Draws player stuff on screen. This is ok because it is all fixed location and is not animated
-    pub fn draw_var(&mut self, ctx: &mut Context, p1: &Player, p2: &Player) -> GameResult<()> {
+    pub fn draw_var(&mut self, ctx: &mut Context, p1: &Player, p2: &Player, p1_highlight: &Color, p2_highlight: &Color) -> GameResult<()> {
         let p1_rolling_dice = p1.check_rolling_dice();
         let p1_bet = p1.check_bet();
         let p2_rolling_dice = p2.check_rolling_dice();
@@ -192,9 +192,10 @@ impl PlayerAssets {
         let p2_bet_coordinates = [(33.0,343.0),(97.0,343.0),(33.0,405.0),(97.0,405.0),(33.0,468.0),(97.0,468.0),(33.0,531.0),(97.0,531.0)];  //[d2,d4,d6,d8,d10,d10p,d12,d20] coordinates
 
         //Roll Result
-        set_color(ctx, self.cyan); //By setting this we can add color on top of whatever we are drawing
-        draw(ctx, &self.roll_result_p2, Point2::new(39.0,256.0), 0.0);
+        set_color(ctx, *p1_highlight); //By setting this we can add color on top of whatever we are drawing
         draw(ctx, &self.roll_result_p1, Point2::new(659.0,322.0), 0.0);
+        set_color(ctx, *p2_highlight);
+        draw(ctx, &self.roll_result_p2, Point2::new(39.0,256.0), 0.0);
         set_color(ctx, WHITE); //Need to reset to default color after done  to avoid coloring something else
 
         //Draw the rest of text

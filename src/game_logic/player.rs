@@ -26,15 +26,16 @@ pub fn check_bet() -> &Vec<DiceType> - returns an immutable reference to the dic
 pub fn clear_bet() - empties the dice being bet
 
 ###Dicecoins in rolling pool###
-pub fn roll_dice() -> bool -- attempts to roll all dice in rolling pool and sets roll_result to the total roll, this also clears the rolling pool. Returns true if no overflow, false otherwise
+pub fn roll_dice() -> bool -- attempts to roll all dice in rolling pool and sets roll_result to the total roll. Returns true if no overflow, false otherwise
 pub fn bet_rolling_dice(dice: DiceType) -> bool - Subtracts a dice from the Dicecoin Bank and adds it to the Dicecoins in the rolling pool, returns true if possible and false if not
 pub fn check_rolling_dice() -> &Vec<DiceType> - returns an immutable reference to the dice in the rolling pool
 pub fn clear_rolling_dice() - empties the dice in the rolling pool
 
 ###Dicecoin utility functions###
-    pub fn check_dice_total(&self) -> &u32 - returns the total number of held dice
+pub fn check_dice_total(&self) -> &u32 - returns the total number of held dice
+pub fn set_defaults (&mut self) - Resets the dice to default values
+pub fn clear_roll_result(&mut self) - clears the roll result
     fn update_dice_total (&mut self) - called when there is a change to dice numbers to update the dice total
-    clear_roll_result(&mut self) - clears the roll result
 */
 
 /*
@@ -50,6 +51,15 @@ const MAX_GAMBLE_DICE: usize    = 8; //Need to compare to Vec's len() return res
 const MAX_ROLL_DICE: usize      = 2;
 const MAX_DICE_HELD: u32        = 9; //Need to compare to u32 values
 const MAX_ROLL_VALUE: u64       = 9999; //Need to compare to Dicecoins roll return value which is u64
+
+const DEF_D2: u32 = 1;
+const DEF_D4: u32 = 1;
+const DEF_D6: u32 = 1;
+const DEF_D8: u32 = 0;
+const DEF_D10: u32 = 0;
+const DEF_D10P: u32 = 0;
+const DEF_D12: u32 = 0;
+const DEF_D20: u32 = 0;
 
 pub struct Player {
     //Dicecoin canonical definition (These are the dicecoins as defined by my project)
@@ -95,15 +105,15 @@ impl Player {
             d12: Dicecoins::new(vec![1, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 50]),
             d20: Dicecoins::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]),
             //Dicecoin bank (These are the total amount of various Dicecoins the player has)
-            d2_count: 0,
-            d4_count: 0,
-            d6_count: 0,
-            d8_count: 0,
-            d10_count: 0,
-            d10p_count: 1,
-            d12_count: 1,
-            d20_count: 1,
-            total_dice: 3,
+            d2_count: DEF_D2,
+            d4_count: DEF_D4,
+            d6_count: DEF_D6,
+            d8_count: DEF_D8,
+            d10_count: DEF_D10,
+            d10p_count: DEF_D10P,
+            d12_count: DEF_D12,
+            d20_count: DEF_D20,
+            total_dice: DEF_D2 + DEF_D4 + DEF_D6 + DEF_D8 + DEF_D10 + DEF_D10P + DEF_D12 + DEF_D20,
             //Dicecoin in rolling pool (is that a word?) (These are the Dicecoins being set to be rolled)
             //and roll result
             rolling_dice: Vec::<DiceType>::new(),
@@ -264,8 +274,6 @@ impl Player {
             }
         }
 
-        self.rolling_dice.clear();
-
         retval
     }
 
@@ -359,11 +367,25 @@ impl Player {
         &self.total_dice
     }
 
-    fn update_dice_total (&mut self) {
-        self.total_dice = self.d2_count + self.d4_count + self.d6_count + self.d8_count + self.d10_count + self.d10p_count + self.d12_count + self.d20_count;
+    pub fn set_defaults (&mut self) {
+        self.d2_count =   DEF_D2;
+        self.d4_count =   DEF_D4;
+        self.d6_count =   DEF_D6;
+        self.d8_count =   DEF_D8;
+        self.d10_count =  DEF_D10;
+        self.d10p_count = DEF_D10P;
+        self.d12_count =  DEF_D12;
+        self.d20_count =  DEF_D20;
+        self.total_dice = DEF_D2 + DEF_D4 + DEF_D6 + DEF_D8 + DEF_D10 + DEF_D10P + DEF_D12 + DEF_D20;
     }
 
     pub fn clear_roll_result (&mut self) {
         self.roll_result = 0;
     }
+
+    fn update_dice_total (&mut self) {
+        self.total_dice = self.d2_count + self.d4_count + self.d6_count + self.d8_count + self.d10_count + self.d10p_count + self.d12_count + self.d20_count;
+    }
+
+
 }

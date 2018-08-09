@@ -26,7 +26,7 @@ use game_logic::utility_functions::*;
 use gambling::dice_type::DiceType;
 
 //Ggez
-use ggez::graphics::{FilterMode,Image, Point2, Font, Color, draw, set_default_filter};
+use ggez::graphics::{FilterMode,Image, Point2, Font, Color, WHITE, draw, set_default_filter, set_color};
 use ggez::graphics::spritebatch::{SpriteBatch};
 
 use ggez::event;
@@ -45,7 +45,8 @@ pub struct DicecoinMPC {
     //Background image
     background_dc_mpc: SpriteBatch,
     //Text
-    cyan: Color,
+    p1_highlight: Color,
+    p2_highlight: Color,
     font: Font,
     //Sounds
     bad_boop: Source,
@@ -117,7 +118,7 @@ impl DicecoinMPC {
         self.manage_phase_and_end_flags();
 
         //DEBUG block
-        println!("Turn: {:?}, Phase {:?} High Roller is Turn: {:?}", self.turnphase.0.clone(), self.turnphase.1.clone(), self.highest_roller.clone());
+        //println!("Turn: {:?}, Phase {:?} High Roller is Turn: {:?}", self.turnphase.0.clone(), self.turnphase.1.clone(), self.highest_roller.clone());
         Ok(())
     }
 
@@ -130,17 +131,21 @@ impl DicecoinMPC {
         self.background_dc_mpc.clear();
 
         //Draws Enter button on screen
+        if self.turnphase.0 == Turn::Player2 {set_color(ctx, self.p1_highlight)?;}
         self.enter.add(make_param((649.0,414.0), (1.0,1.0), 0.0, (0.0, self.enter_offset.1)));
         draw(ctx,&self.enter, Point2::new(0.0, 0.0), 0.0)?;
         self.enter.clear();
+        set_color(ctx, WHITE)?; //In case there is a highlight active we want to reset
 
         //Draws EnterReverse button on screen
+        if self.turnphase.0 == Turn::Player1 {set_color(ctx, self.p2_highlight)?;}
         self.enter_flip.add(make_param((36.0,34.0), (1.0,1.0), 0.0, (0.0, self.enter_flip_offset.1)));
         draw(ctx,&self.enter_flip, Point2::new(0.0, 0.0), 0.0)?;
         self.enter_flip.clear();
+        set_color(ctx, WHITE)?; //In case there is a highlight active we want to reset
 
         //Prettier to have all static draws handled elsewhere
-        self.player_assets.draw_var(ctx, &self.p1, &self.p2)?;
+        self.player_assets.draw_var(ctx, &self.p1, &self.p2, &self.p1_highlight, &self.p2_highlight)?;
 
         Ok(())
     }
@@ -225,7 +230,8 @@ impl DicecoinMPC {
             //Background
             background_dc_mpc: bg_spr,
             //Text
-            cyan: Color::new(95.0, 205.0, 228.0, 255.0), //This is the cyan in the concept doc,
+            p1_highlight: Color::new(1.0, 0.0, 0.0, 1.0), //This is the highlight color to indicate something is p1
+            p2_highlight: Color::new(0.0, 0.0, 1.0, 1.0), //This is the highlight color to indicate something is p2
             font: font1,
             //Sounds
             bad_boop: b_boop,
@@ -262,7 +268,22 @@ impl DicecoinMPC {
         Ok(x)
     }
 
-    //Sets environment variables to false
+    //Sets environment to how it should be at the start of a new game
+    pub fn set_env_defaults(&mut self) {
+        self.p1.set_defaults();
+        self.p2.set_defaults();
+        self.set_env_false();
+        self.turnphase = (Turn::Player1, Phase::Betting);
+        self.enter_offset = (0.0,0.0);
+        self.go_up_enter = true;
+        self.enter_flip_offset = (0.0,0.0);
+        self.go_up_enter_flip = false;
+        self.winner = Turn::Player1;
+        self.highest_roller = Turn::Player2;
+        self.game_winner = Turn::Player1;
+    }
+
+    //Sets most environment bool variables to false
     fn set_env_false (&mut self) {
         //P1
         self.betting_phase_flag_p1 = false;
@@ -275,6 +296,8 @@ impl DicecoinMPC {
         //Animation controller
         self.p1_end_ready = false;
         self.p2_end_ready = false;
+        //Quit Flag
+        self.quit_flag = false;
     }
 
     //Checks and updates the first two environment variables

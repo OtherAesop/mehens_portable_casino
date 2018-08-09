@@ -24,7 +24,7 @@ use game_logic::utility_functions::*;
 //use gambling::dice_type::DiceType;
 
 //Ggez
-use ggez::graphics::{FilterMode,Image, Point2, draw, set_default_filter};
+use ggez::graphics::{FilterMode,Image, Point2, TextCached, TextFragment, draw, set_default_filter};
 use ggez::graphics::spritebatch::{SpriteBatch};
 
 use ggez::event;
@@ -41,6 +41,34 @@ Here I define all the assets I will need to run a particular scene.
 pub struct DicecoinMPC {
     //Background image
     background_dc_mpc: SpriteBatch,
+    //Dice Sprites
+    d2: SpriteBatch,
+    d4: SpriteBatch,
+    d6: SpriteBatch,
+    d8: SpriteBatch,
+    d10: SpriteBatch,
+    d10p: SpriteBatch,
+    d12: SpriteBatch,
+    d20: SpriteBatch,
+    //Text
+    //P1
+    d2_text_p1: TextCached,
+    d4_text_p1: TextCached,
+    d6_text_p1: TextCached,
+    d8_text_p1: TextCached,
+    d10_text_p1: TextCached,
+    d10p_text_p1: TextCached,
+    d12_text_p1: TextCached,
+    d20_text_p1: TextCached,
+    //P2
+    d2_text_p2: TextCached,
+    d4_text_p2: TextCached,
+    d6_text_p2: TextCached,
+    d8_text_p2: TextCached,
+    d10_text_p2: TextCached,
+    d10p_text_p2: TextCached,
+    d12_text_p2: TextCached,
+    d20_text_p2: TextCached,
     //Sounds
     bad_boop: Source,
     good_boop: Source,
@@ -149,6 +177,8 @@ impl DicecoinMPC {
         self.enter_flip.add(make_param((36.0,34.0), (1.0,1.0), 0.0, (0.0, self.enter_flip_offset.1)));
         draw(ctx,&self.enter_flip, Point2::new(0.0, 0.0), 0.0)?;
         self.enter_flip.clear();
+
+        //Draws P1 variables on screen
 
         Ok(())
     }
@@ -440,6 +470,28 @@ impl DicecoinMPC {
         let enter_flipped = Image::new(ctx, "/EnterReverse.png")?;
         let enter_flipped_spr = SpriteBatch::new(enter_flipped);
 
+        //D2-D20 picture allocations
+        let d2 = Image::new(ctx, "/D2blur.png")?;
+        let d4 = Image::new(ctx, "/D4blur.png")?;
+        let d6 = Image::new(ctx, "/D6blur.png")?;
+        let d8 = Image::new(ctx, "/D8blur.png")?;
+        let d10 = Image::new(ctx, "/D10blur.png")?;
+        let d10p = Image::new(ctx, "/D10Pblur.png")?;
+        let d12 = Image::new(ctx, "/D12blur.png")?;
+        let d20 = Image::new(ctx, "/D20blur.png")?;
+        //SpriteBatch alloc
+        let d2_spr = SpriteBatch::new(d2);
+        let d4_spr = SpriteBatch::new(d4);
+        let d6_spr = SpriteBatch::new(d6);
+        let d8_spr = SpriteBatch::new(d8);
+        let d10_spr = SpriteBatch::new(d10);
+        let d10p_spr = SpriteBatch::new(d10p);
+        let d12_spr = SpriteBatch::new(d12);
+        let d20_spr = SpriteBatch::new(d20);
+
+        //Text allocations
+        let d2t = TextFragment{"ge".to_string(), }
+
         //Sound allocations
         let b_boop = Source::new(ctx, "/beep4.ogg")?;
         let g_boop = Source::new(ctx, "/Bleep Sound.wav")?;
@@ -447,6 +499,34 @@ impl DicecoinMPC {
         let x = DicecoinMPC {
             //Background
             background_dc_mpc: bg_spr,
+            //Dice Sprites
+            d2: d2_spr,
+            d4: d4_spr,
+            d6: d6_spr,
+            d8: d8_spr,
+            d10: d10_spr,
+            d10p: d10p_spr,
+            d12: d12_spr,
+            d20: d20_spr,
+            //Text
+            //P1
+            d2_text_p1: TextCached,
+            d4_text_p1: TextCached,
+            d6_text_p1: TextCached,
+            d8_text_p1: TextCached,
+            d10_text_p1: TextCached,
+            d10p_text_p1: TextCached,
+            d12_text_p1: TextCached,
+            d20_text_p1: TextCached,
+            //P2
+            d2_text_p2: TextCached,
+            d4_text_p2: TextCached,
+            d6_text_p2: TextCached,
+            d8_text_p2: TextCached,
+            d10_text_p2: TextCached,
+            d10p_text_p2: TextCached,
+            d12_text_p2: TextCached,
+            d20_text_p2: TextCached,
             //Sounds
             bad_boop: b_boop,
             good_boop: g_boop,

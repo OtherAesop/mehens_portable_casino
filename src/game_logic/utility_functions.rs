@@ -24,7 +24,7 @@ use game_logic::player::Player;
 //Ggez
 use ggez::conf::{WindowSetup, WindowMode};
 use ggez::{ContextBuilder, Context};
-use ggez::graphics::{/*Image,*/ Point2, DrawParam};
+use ggez::graphics::{Point2, DrawParam};
 use ggez::timer;
 use ggez::audio::Source;
 
@@ -145,10 +145,12 @@ pub fn check_advance_conditions (p1: &Player) -> (bool,bool) {
     let rolling_dice_num = p1.check_rolling_dice().len(); // Checks number of dice in rolling pool
     let betted_dice_num = p1.check_bet().len(); //Checks number of dice betted
 
+    //DEBUG: println!("# of rolling dice {}", rolling_dice_num.clone());
+    //DEBUG: println!("# of betted dice {}", betted_dice_num.clone());
     if rolling_dice_num > 0 && rolling_dice_num < 3 { // [1,2]
         betting_flag = true;
     }
-    if betted_dice_num > 0 && betted_dice_num < 9 {
+    if betted_dice_num < 9 {
         raising_flag = true;
     }
 

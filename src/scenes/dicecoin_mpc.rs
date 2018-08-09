@@ -19,12 +19,14 @@ use game_logic::scene_return_values::SceneReturn;
 use game_logic::turns::Turn;
 use game_logic::phase::Phase;
 use game_logic::player::Player;
+//This holds the stuff that can be used to draw on the screen
+use game_logic::player_assets::PlayerAssets;
 use game_logic::utility_functions::*;
-//We handle the dice by enums 'cuz that can be controlled easily
-//use gambling::dice_type::DiceType;
+//Easy to handle things by enums
+use gambling::dice_type::DiceType;
 
 //Ggez
-use ggez::graphics::{FilterMode,Image, Point2, TextCached, TextFragment, draw, set_default_filter};
+use ggez::graphics::{FilterMode,Image, Point2, Font, Color, draw, set_default_filter};
 use ggez::graphics::spritebatch::{SpriteBatch};
 
 use ggez::event;
@@ -38,37 +40,13 @@ use ggez::{Context, GameResult};
 Here I define all the assets I will need to run a particular scene.
 */
 
+#[allow(unused)]
 pub struct DicecoinMPC {
     //Background image
     background_dc_mpc: SpriteBatch,
-    //Dice Sprites
-    d2: SpriteBatch,
-    d4: SpriteBatch,
-    d6: SpriteBatch,
-    d8: SpriteBatch,
-    d10: SpriteBatch,
-    d10p: SpriteBatch,
-    d12: SpriteBatch,
-    d20: SpriteBatch,
     //Text
-    //P1
-    d2_text_p1: TextCached,
-    d4_text_p1: TextCached,
-    d6_text_p1: TextCached,
-    d8_text_p1: TextCached,
-    d10_text_p1: TextCached,
-    d10p_text_p1: TextCached,
-    d12_text_p1: TextCached,
-    d20_text_p1: TextCached,
-    //P2
-    d2_text_p2: TextCached,
-    d4_text_p2: TextCached,
-    d6_text_p2: TextCached,
-    d8_text_p2: TextCached,
-    d10_text_p2: TextCached,
-    d10p_text_p2: TextCached,
-    d12_text_p2: TextCached,
-    d20_text_p2: TextCached,
+    cyan: Color,
+    font: Font,
     //Sounds
     bad_boop: Source,
     good_boop: Source,
@@ -82,6 +60,7 @@ pub struct DicecoinMPC {
     //Player variables
     p1: Player,
     p2: Player,
+    player_assets: PlayerAssets,
     //Endgame variables
     quit_flag: bool, //ONLY assign to true when you want the game to end
     game_winner: Turn, //Just going to print the winner, could possibly use for unique endings
@@ -108,26 +87,30 @@ impl DicecoinMPC {
     pub fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
 
         //Here we control the animation for the enter buttons, they will only animate when the player is allowed to end
-        if self.p1_end_ready {
+        if self.p2_end_ready {
             let new_pos = float_animation(0.15, -0.15, 0.03, self.enter_offset.1, self.go_up_enter, ctx);
             self.enter_offset = (self.enter_offset.0, new_pos.1);
             self.go_up_enter = new_pos.0;
          } else { self.enter_offset.1 = 0.0; } //Keep button at starting pos if not ready to end
 
-        if self.p2_end_ready {
+        if self.p1_end_ready {
             let new_pos_flip = float_animation(0.15, -0.15, 0.03, self.enter_flip_offset.1, self.go_up_enter_flip, ctx);
             self.enter_flip_offset = (self.enter_flip_offset.0, new_pos_flip.1);
             self.go_up_enter_flip = new_pos_flip.0;
         } else { self.enter_flip_offset.1 = 0.0; } //Keep button at starting pos if not ready to end
 
+        //Update the dice count on each player here
+        self.player_assets.update_var(&self.p1, &self.p2);
+
         //Updates first two advance conditions, the third is the result of a decision and thus must
-        //be checked off in event handling
+        //be checked in event handling
         match self.turnphase.0 {
             Turn::Player1 => {
                 //P1 env var updates
                 let p1_state = check_advance_conditions(&self.p1); //Returns (betting_flag, raising_flag)
                 self.betting_phase_flag_p1 = p1_state.0;
                 self.raising_phase_flag_p1 = p1_state.1;
+
             }
             Turn::Player2 => {
                 //P2 env var updates
@@ -142,7 +125,7 @@ impl DicecoinMPC {
         match self.turnphase.1 {
             Phase::Betting => {
                 self.p1_end_ready = self.betting_phase_flag_p1;
-                self.p1_end_ready = self.betting_phase_flag_p2;
+                self.p2_end_ready = self.betting_phase_flag_p2;
             }
             Phase::Raising => {
                 self.p1_end_ready = self.raising_phase_flag_p1;
@@ -155,7 +138,8 @@ impl DicecoinMPC {
             //_             => panic!("Unhandled turnphase update in dicecoin_mpc's update");
         }
 
-
+        //DEBUG block
+        println!("Turn: {:?}, Phase {:?}", self.turnphase.0.clone(), self.turnphase.1.clone());
 
         Ok(())
     }
@@ -178,7 +162,8 @@ impl DicecoinMPC {
         draw(ctx,&self.enter_flip, Point2::new(0.0, 0.0), 0.0)?;
         self.enter_flip.clear();
 
-        //Draws P1 variables on screen
+        //Prettier to have all static draws handled elsewhere
+        self.player_assets.draw_var(ctx, &self.p1, &self.p2)?;
 
         Ok(())
     }
@@ -187,6 +172,7 @@ impl DicecoinMPC {
 
     pub fn key_down_event(&mut self, ctx: &mut Context, keycode: event::Keycode, _keymod: event::Mod, _repeat: bool) -> SceneReturn{
         let msg = match self.turnphase.0 {
+            //Check far below for player controller functions
             Turn::Player1   => self.p1_controller(ctx, keycode),
             Turn::Player2   => self.p2_controller(ctx, keycode),
             //_               => SceneReturn::Err("Unhandled player encountered in dicecoin_mpc's key_down_event".to_string()),
@@ -237,21 +223,89 @@ impl DicecoinMPC {
     }
 
     pub fn key_up_event(&mut self, _ctx: &mut Context, _keycode: event::Keycode, _keymod: event::Mod, _repeat: bool) {}
+}
 
+impl DicecoinMPC {
+    pub fn new(ctx: &mut Context) -> GameResult<DicecoinMPC> {
+        //Note we should set defaults in each module so we can guarantee proper behavior
+        set_default_filter(ctx, FilterMode::Nearest);
+
+        //Background allocation
+        let bg = Image::new(ctx, "/Dicecoin GameBoard.png")?;
+        let bg_spr = SpriteBatch::new(bg);
+
+        //Enter button allocations
+        let enter = Image::new(ctx, "/EnterAdjusted.png")?;
+        let enter_spr = SpriteBatch::new(enter);
+        let enter_flipped = Image::new(ctx, "/EnterReverse.png")?;
+        let enter_flipped_spr = SpriteBatch::new(enter_flipped);
+
+        //Font alloc
+        let font1 = Font::new_glyph_font(ctx, "/PressStart2P-Regular.ttf")?;
+
+        //Sound allocations
+        let b_boop = Source::new(ctx, "/beep4.ogg")?;
+        let g_boop = Source::new(ctx, "/Bleep Sound.wav")?;
+
+        let x = DicecoinMPC {
+            //Background
+            background_dc_mpc: bg_spr,
+            //Text
+            cyan: Color::new(95.0, 205.0, 228.0, 255.0), //This is the cyan in the concept doc,
+            font: font1,
+            //Sounds
+            bad_boop: b_boop,
+            good_boop: g_boop,
+            //Enter buttons and environment variables
+            enter: enter_spr,
+            enter_offset: (0.0,0.0),
+            go_up_enter: true,
+            enter_flip: enter_flipped_spr,
+            enter_flip_offset: (0.0,0.0),
+            go_up_enter_flip: false, //It looks better to have them travelling in opposite directions methinks
+            //Player variables
+            p1: Player::new(),
+            p2: Player::new(),
+            player_assets: PlayerAssets::new(ctx)?,
+            //Endgame variables
+            quit_flag: false, //ONLY assign to true when you want the game to end
+            game_winner: Turn::Player1, //Just going to print the winner, could possibly use for unique endings
+            //Environment variables
+            turnphase: (Turn::Player1, Phase::Betting), // A way to measure transitions (P1 or P2 , Betting, Raising, or Rolling in that order)
+            p1_end_ready: false, //Signifies the player is allowed to end their turn
+            p2_end_ready: false,
+            winner: Turn::Player1, //Should never actually be checked before it is overwritten
+            //P1
+            betting_phase_flag_p1: false,
+            raising_phase_flag_p1: false,
+            rolling_phase_flag_p1: false,
+            //P2
+            betting_phase_flag_p2: false,
+            raising_phase_flag_p2: false,
+            rolling_phase_flag_p2: false,
+            highest_roller: Turn::Player1, //Should never actually be checked before it is overwritten
+        };
+        Ok(x)
+    }
+}
+
+//Player controllers are put down here to make this more readable
+
+impl DicecoinMPC {
     //The nature of the game makes separate controllers neater
     fn p1_controller (&mut self, _ctx: &mut Context, keycode: event::Keycode) -> SceneReturn {
 
         let retval = match self.turnphase.1 {
             Phase::Betting => {
                 match keycode {
-                    Keycode::Q      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::W      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::E      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::R      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::A      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::S      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::D      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::F      => { safe_play(&self.good_boop); SceneReturn::Good}
+                    Keycode::Q      => { if self.p1.bet_rolling_dice(DiceType::D2)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::W      => { if self.p1.bet_rolling_dice(DiceType::D4)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::E      => { if self.p1.bet_rolling_dice(DiceType::D6)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::R      => { if self.p1.bet_rolling_dice(DiceType::D8)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::A      => { if self.p1.bet_rolling_dice(DiceType::D10)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::S      => { if self.p1.bet_rolling_dice(DiceType::D10p) {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::D      => { if self.p1.bet_rolling_dice(DiceType::D12)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::F      => { if self.p1.bet_rolling_dice(DiceType::D20)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
                     Keycode::Return => {
                         if self.p1_end_ready { //Player is allowed to end their turn
                             safe_play(&self.good_boop);
@@ -267,14 +321,14 @@ impl DicecoinMPC {
             }
             Phase::Raising => {
                 match keycode {
-                    Keycode::Q      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::W      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::E      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::R      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::A      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::S      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::D      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::F      => { safe_play(&self.good_boop); SceneReturn::Good}
+                    Keycode::Q      => { if self.p1.bet_dice(DiceType::D2)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::W      => { if self.p1.bet_dice(DiceType::D4)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::E      => { if self.p1.bet_dice(DiceType::D6)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::R      => { if self.p1.bet_dice(DiceType::D8)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::A      => { if self.p1.bet_dice(DiceType::D10)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::S      => { if self.p1.bet_dice(DiceType::D10p) {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::D      => { if self.p1.bet_dice(DiceType::D12)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::F      => { if self.p1.bet_dice(DiceType::D20)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
                     Keycode::Return => {
                         if self.p1_end_ready { //Player is allowed to end their turn
                             safe_play(&self.good_boop);
@@ -333,6 +387,8 @@ impl DicecoinMPC {
                                 if !win(&mut self.p1, &mut self.p2, &self.winner) {
                                     println!("Overflow occurred, but guards prevented bad game flow. Check your design.");
                                 }
+                                self.p1.clear_roll_result();
+                                self.p2.clear_roll_result();
                                 self.p1_end_ready = false;
                                 SceneReturn::Finished
                             } else { //Player may not end their turn
@@ -356,14 +412,14 @@ impl DicecoinMPC {
         let retval = match self.turnphase.1 {
             Phase::Betting => {
                 match keycode {
-                    Keycode::Y      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::U      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::I      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::O      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::H      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::J      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::K      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::L      => { safe_play(&self.good_boop); SceneReturn::Good}
+                    Keycode::Y      => { if self.p2.bet_rolling_dice(DiceType::D2)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::U      => { if self.p2.bet_rolling_dice(DiceType::D4)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::I      => { if self.p2.bet_rolling_dice(DiceType::D6)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::O      => { if self.p2.bet_rolling_dice(DiceType::D8)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::H      => { if self.p2.bet_rolling_dice(DiceType::D10)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::J      => { if self.p2.bet_rolling_dice(DiceType::D10p) {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::K      => { if self.p2.bet_rolling_dice(DiceType::D12)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::L      => { if self.p2.bet_rolling_dice(DiceType::D20)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
                     Keycode::Return => {
                         if self.p2_end_ready { //Player is allowed to end their turn
                             safe_play(&self.good_boop);
@@ -379,14 +435,14 @@ impl DicecoinMPC {
             }
             Phase::Raising => {
                 match keycode {
-                    Keycode::Y      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::U      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::I      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::O      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::H      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::J      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::K      => { safe_play(&self.good_boop); SceneReturn::Good}
-                    Keycode::L      => { safe_play(&self.good_boop); SceneReturn::Good}
+                    Keycode::Y      => { if self.p2.bet_dice(DiceType::D2)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::U      => { if self.p2.bet_dice(DiceType::D4)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::I      => { if self.p2.bet_dice(DiceType::D6)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::O      => { if self.p2.bet_dice(DiceType::D8)   {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::H      => { if self.p2.bet_dice(DiceType::D10)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::J      => { if self.p2.bet_dice(DiceType::D10p) {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::K      => { if self.p2.bet_dice(DiceType::D12)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
+                    Keycode::L      => { if self.p2.bet_dice(DiceType::D20)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
                     Keycode::Return => {
                         if self.p2_end_ready { //Player is allowed to end their turn
                             safe_play(&self.good_boop);
@@ -435,6 +491,8 @@ impl DicecoinMPC {
                                 if !win(&mut self.p1, &mut self.p2, &self.winner) {
                                     println!("Overflow occurred, but guards prevented bad game flow. Check your design.");
                                 }
+                                self.p1.clear_roll_result();
+                                self.p2.clear_roll_result();
                                 self.p2_end_ready = false;
                                 SceneReturn::Finished
                             } else { //Player may not end their turn
@@ -453,111 +511,5 @@ impl DicecoinMPC {
 
         retval
     }
-}
 
-impl DicecoinMPC {
-    pub fn new(ctx: &mut Context) -> GameResult<DicecoinMPC> {
-        //Note we should set defaults in each module so we can guarantee proper behavior
-        set_default_filter(ctx, FilterMode::Nearest);
-
-        //Background allocation
-        let bg = Image::new(ctx, "/Dicecoin GameBoard.png")?;
-        let bg_spr = SpriteBatch::new(bg);
-
-        //Enter button allocations
-        let enter = Image::new(ctx, "/EnterAdjusted.png")?;
-        let enter_spr = SpriteBatch::new(enter);
-        let enter_flipped = Image::new(ctx, "/EnterReverse.png")?;
-        let enter_flipped_spr = SpriteBatch::new(enter_flipped);
-
-        //D2-D20 picture allocations
-        let d2 = Image::new(ctx, "/D2blur.png")?;
-        let d4 = Image::new(ctx, "/D4blur.png")?;
-        let d6 = Image::new(ctx, "/D6blur.png")?;
-        let d8 = Image::new(ctx, "/D8blur.png")?;
-        let d10 = Image::new(ctx, "/D10blur.png")?;
-        let d10p = Image::new(ctx, "/D10Pblur.png")?;
-        let d12 = Image::new(ctx, "/D12blur.png")?;
-        let d20 = Image::new(ctx, "/D20blur.png")?;
-        //SpriteBatch alloc
-        let d2_spr = SpriteBatch::new(d2);
-        let d4_spr = SpriteBatch::new(d4);
-        let d6_spr = SpriteBatch::new(d6);
-        let d8_spr = SpriteBatch::new(d8);
-        let d10_spr = SpriteBatch::new(d10);
-        let d10p_spr = SpriteBatch::new(d10p);
-        let d12_spr = SpriteBatch::new(d12);
-        let d20_spr = SpriteBatch::new(d20);
-
-        //Text allocations
-        let d2t = TextFragment{"ge".to_string(), }
-
-        //Sound allocations
-        let b_boop = Source::new(ctx, "/beep4.ogg")?;
-        let g_boop = Source::new(ctx, "/Bleep Sound.wav")?;
-
-        let x = DicecoinMPC {
-            //Background
-            background_dc_mpc: bg_spr,
-            //Dice Sprites
-            d2: d2_spr,
-            d4: d4_spr,
-            d6: d6_spr,
-            d8: d8_spr,
-            d10: d10_spr,
-            d10p: d10p_spr,
-            d12: d12_spr,
-            d20: d20_spr,
-            //Text
-            //P1
-            d2_text_p1: TextCached,
-            d4_text_p1: TextCached,
-            d6_text_p1: TextCached,
-            d8_text_p1: TextCached,
-            d10_text_p1: TextCached,
-            d10p_text_p1: TextCached,
-            d12_text_p1: TextCached,
-            d20_text_p1: TextCached,
-            //P2
-            d2_text_p2: TextCached,
-            d4_text_p2: TextCached,
-            d6_text_p2: TextCached,
-            d8_text_p2: TextCached,
-            d10_text_p2: TextCached,
-            d10p_text_p2: TextCached,
-            d12_text_p2: TextCached,
-            d20_text_p2: TextCached,
-            //Sounds
-            bad_boop: b_boop,
-            good_boop: g_boop,
-            //Enter buttons and environment variables
-            enter: enter_spr,
-            enter_offset: (0.0,0.0),
-            go_up_enter: true,
-            enter_flip: enter_flipped_spr,
-            enter_flip_offset: (0.0,0.0),
-            go_up_enter_flip: false, //It looks better to have them travelling in opposite directions methinks
-            //Player variables
-            p1: Player::new(),
-            p2: Player::new(),
-            //Endgame variables
-            quit_flag: false, //ONLY assign to true when you want the game to end
-            game_winner: Turn::Player1, //Just going to print the winner, could possibly use for unique endings
-            //Environment variables
-            turnphase: (Turn::Player1, Phase::Betting), // A way to measure transitions (P1 or P2 , Betting, Raising, or Rolling in that order)
-            p1_end_ready: false, //Signifies the player is allowed to end their turn
-            p2_end_ready: false,
-            winner: Turn::Player1, //Should never actually be checked before it is overwritten
-            //P1
-            betting_phase_flag_p1: false,
-            raising_phase_flag_p1: false,
-            rolling_phase_flag_p1: false,
-            //P2
-            betting_phase_flag_p2: false,
-            raising_phase_flag_p2: false,
-            rolling_phase_flag_p2: false,
-            highest_roller: Turn::Player1, //Should never actually be checked before it is overwritten
-        };
-        Ok(x)
-    }
 }

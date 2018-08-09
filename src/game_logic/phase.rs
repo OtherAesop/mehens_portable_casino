@@ -18,8 +18,7 @@
 Defines phases as enums because yay abstraction right? Need PartialEq to do tests for equality in Dicecoin game
 */
 
-#[allow(unused)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Phase {
     Betting,
     Raising,

@@ -24,6 +24,7 @@ level.
 pub mod main_state;
 pub mod phase;
 pub mod player;
+pub mod player_assets;
 pub mod scene_type;
 pub mod scene_return_values;
 pub mod turns;

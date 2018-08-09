@@ -34,6 +34,7 @@ pub fn clear_rolling_dice() - empties the dice in the rolling pool
 ###Dicecoin utility functions###
     pub fn check_dice_total(&self) -> &u32 - returns the total number of held dice
     fn update_dice_total (&mut self) - called when there is a change to dice numbers to update the dice total
+    clear_roll_result(&mut self) - clears the roll result
 */
 
 /*
@@ -75,7 +76,6 @@ pub struct Player {
     pub roll_result: u64,
     //Dicecoins gambled (as in like a cash bet) and roll result
     gambled_dice: Vec<DiceType>,
-
 }
 
 //Removing this can cause a bunch of unused warnings because the unused warning is applied transitively
@@ -95,15 +95,15 @@ impl Player {
             d12: Dicecoins::new(vec![1, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 50]),
             d20: Dicecoins::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]),
             //Dicecoin bank (These are the total amount of various Dicecoins the player has)
-            d2_count: 3,
-            d4_count: 3,
-            d6_count: 3,
-            d8_count: 3,
-            d10_count: 3,
-            d10p_count: 3,
-            d12_count: 3,
-            d20_count: 3,
-            total_dice: 24,
+            d2_count: 0,
+            d4_count: 0,
+            d6_count: 0,
+            d8_count: 0,
+            d10_count: 0,
+            d10p_count: 1,
+            d12_count: 1,
+            d20_count: 1,
+            total_dice: 3,
             //Dicecoin in rolling pool (is that a word?) (These are the Dicecoins being set to be rolled)
             //and roll result
             rolling_dice: Vec::<DiceType>::new(),
@@ -119,7 +119,7 @@ impl Player {
         let retval = match dice {
             DiceType::D2 => {
                 if self.d2_count > 0 && self.gambled_dice.len() < MAX_GAMBLE_DICE {
-                    self.d2_count - 1;
+                    self.d2_count -= 1;
                     self.gambled_dice.push(DiceType::D2);
                     true
                 } else {
@@ -128,7 +128,7 @@ impl Player {
             },
             DiceType::D4 => {
                 if self.d4_count > 0 && self.gambled_dice.len() < MAX_GAMBLE_DICE {
-                    self.d4_count - 1;
+                    self.d4_count -= 1;
                     self.gambled_dice.push(DiceType::D4);
                     true
                 } else {
@@ -137,7 +137,7 @@ impl Player {
             },
             DiceType::D6 => {
                 if self.d6_count > 0 && self.gambled_dice.len() < MAX_GAMBLE_DICE {
-                    self.d6_count - 1;
+                    self.d6_count -= 1;
                     self.gambled_dice.push(DiceType::D6);
                     true
                 } else {
@@ -146,7 +146,7 @@ impl Player {
             },
             DiceType::D8 => {
                 if self.d8_count > 0 && self.gambled_dice.len() < MAX_GAMBLE_DICE {
-                    self.d8_count - 1;
+                    self.d8_count -= 1;
                     self.gambled_dice.push(DiceType::D8);
                     true
                 } else {
@@ -155,7 +155,7 @@ impl Player {
             },
             DiceType::D10 => {
                 if self.d10_count > 0 && self.gambled_dice.len() < MAX_GAMBLE_DICE {
-                    self.d10_count - 1;
+                    self.d10_count -= 1;
                     self.gambled_dice.push(DiceType::D10);
                     true
                 } else {
@@ -164,7 +164,7 @@ impl Player {
             },
             DiceType::D10p => {
                 if self.d10p_count > 0 && self.gambled_dice.len() < MAX_GAMBLE_DICE {
-                    self.d10p_count - 1;
+                    self.d10p_count -= 1;
                     self.gambled_dice.push(DiceType::D10p);
                     true
                 } else {
@@ -173,7 +173,7 @@ impl Player {
             },
             DiceType::D12 => {
                 if self.d12_count > 0 && self.gambled_dice.len() < MAX_GAMBLE_DICE {
-                    self.d12_count - 1;
+                    self.d12_count -= 1;
                     self.gambled_dice.push(DiceType::D12);
                     true
                 } else {
@@ -182,7 +182,7 @@ impl Player {
             },
             DiceType::D20 => {
                 if self.d20_count > 0 && self.gambled_dice.len() < MAX_GAMBLE_DICE {
-                    self.d20_count - 1;
+                    self.d20_count -= 1;
                     self.gambled_dice.push(DiceType::D20);
                     true
                 } else {
@@ -271,7 +271,7 @@ impl Player {
         let retval = match dice {
             DiceType::D2 => {
                 if self.d2_count > 0 && self.rolling_dice.len() < MAX_ROLL_DICE {
-                    self.d2_count - 1;
+                    self.d2_count -= 1;
                     self.rolling_dice.push(DiceType::D2);
                     true
                 } else {
@@ -280,7 +280,7 @@ impl Player {
             },
             DiceType::D4 => {
                 if self.d4_count > 0 && self.rolling_dice.len() < MAX_ROLL_DICE {
-                    self.d4_count - 1;
+                    self.d4_count -= 1;
                     self.rolling_dice.push(DiceType::D4);
                     true
                 } else {
@@ -289,7 +289,7 @@ impl Player {
             },
             DiceType::D6 => {
                 if self.d6_count > 0 && self.rolling_dice.len() < MAX_ROLL_DICE {
-                    self.d6_count - 1;
+                    self.d6_count -= 1;
                     self.rolling_dice.push(DiceType::D6);
                     true
                 } else {
@@ -298,7 +298,7 @@ impl Player {
             },
             DiceType::D8 => {
                 if self.d8_count > 0 && self.rolling_dice.len() < MAX_ROLL_DICE {
-                    self.d8_count - 1;
+                    self.d8_count -= 1;
                     self.rolling_dice.push(DiceType::D8);
                     true
                 } else {
@@ -307,7 +307,7 @@ impl Player {
             },
             DiceType::D10 => {
                 if self.d10_count > 0 && self.rolling_dice.len() < MAX_ROLL_DICE {
-                    self.d10_count - 1;
+                    self.d10_count -= 1;
                     self.rolling_dice.push(DiceType::D10);
                     true
                 } else {
@@ -316,7 +316,7 @@ impl Player {
             },
             DiceType::D10p => {
                 if self.d10p_count > 0 && self.rolling_dice.len() < MAX_ROLL_DICE {
-                    self.d10p_count - 1;
+                    self.d10p_count -= 1;
                     self.rolling_dice.push(DiceType::D10p);
                     true
                 } else {
@@ -325,7 +325,7 @@ impl Player {
             },
             DiceType::D12 => {
                 if self.d12_count > 0 && self.rolling_dice.len() < MAX_ROLL_DICE {
-                    self.d12_count - 1;
+                    self.d12_count -= 1;
                     self.rolling_dice.push(DiceType::D12);
                     true
                 } else {
@@ -334,7 +334,7 @@ impl Player {
             },
             DiceType::D20 => {
                 if self.d20_count > 0 && self.rolling_dice.len() < MAX_ROLL_DICE {
-                    self.d20_count - 1;
+                    self.d20_count -= 1;
                     self.rolling_dice.push(DiceType::D20);
                     true
                 } else {
@@ -358,5 +358,9 @@ impl Player {
 
     fn update_dice_total (&mut self) {
         self.total_dice = self.d2_count + self.d4_count + self.d6_count + self.d8_count + self.d10_count + self.d10p_count + self.d12_count + self.d20_count;
+    }
+
+    pub fn clear_roll_result (&mut self) {
+        self.roll_result = 0;
     }
 }

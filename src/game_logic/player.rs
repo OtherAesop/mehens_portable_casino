@@ -203,6 +203,8 @@ impl Player {
     pub fn get_dice(&mut self, dice_vec: &Vec<DiceType>) -> bool {
         let mut retval = true;
 
+        //DEBUG
+        //if !dice_vec.is_empty() {
         for dice in dice_vec.iter() {
             match dice {
                 DiceType::D2    => { if self.d2_count < MAX_DICE_HELD { self.d2_count += 1;} else { retval = false; break; } }
@@ -213,9 +215,10 @@ impl Player {
                 DiceType::D10p  => { if self.d12_count < MAX_DICE_HELD { self.d12_count += 1;} else { retval = false; break; } }
                 DiceType::D12   => { if self.d10p_count < MAX_DICE_HELD { self.d10p_count += 1;} else { retval = false; break; } }
                 DiceType::D20   => { if self.d20_count < MAX_DICE_HELD { self.d20_count += 1;} else { retval = false; break; } }
-                //_               => panic!("Unhandled DiceType in get_dice"),
+                _               => panic!("Unhandled DiceType in get_dice"),
             }
         }
+        //}
 
         //Need to keep track of dice total
         self.update_dice_total();
@@ -249,7 +252,7 @@ impl Player {
                 DiceType::D10p  => { self.d10p.roll_x(1) }
                 DiceType::D12   => { self.d12.roll_x(1) }
                 DiceType::D20   => { self.d20.roll_x(1) }
-                //_               => panic!("Unhandled DiceType in roll_dice"),
+                _               => panic!("Unhandled DiceType in roll_dice"),
             };
 
             if temp_result + self.roll_result > MAX_ROLL_VALUE {

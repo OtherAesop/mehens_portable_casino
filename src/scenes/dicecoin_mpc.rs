@@ -102,45 +102,22 @@ impl DicecoinMPC {
         //Update the dice count on each player here
         self.player_assets.update_var(&self.p1, &self.p2);
 
+        //Now we need to check if it is turnphase (Player1,Rolling). If Player 1 is not the highest roller then we skip their turn
+        //Set the environment flags to false in case player presses a button
+        if (self.turnphase.0 == Turn::Player1) && (self.turnphase.1 == Phase::Rolling) && (self.highest_roller != Turn::Player1){ //true when turnphase == (Player1, Rolling) and P1 is not the high roller
+            self.turnphase = transition_turnphase(&self.turnphase.0, &self.turnphase.1);
+            self.set_env_false();
+        } else if (self.turnphase.0 == Turn::Player2) && (self.turnphase.1 == Phase::Rolling) && (self.highest_roller != Turn::Player2){
+            self.turnphase = transition_turnphase(&self.turnphase.0, &self.turnphase.1);
+            self.set_env_false();
+        }
+
         //Updates first two advance conditions, the third is the result of a decision and thus must
         //be checked in event handling
-        match self.turnphase.0 {
-            Turn::Player1 => {
-                //P1 env var updates
-                let p1_state = check_advance_conditions(&self.p1); //Returns (betting_flag, raising_flag)
-                self.betting_phase_flag_p1 = p1_state.0;
-                self.raising_phase_flag_p1 = p1_state.1;
-
-            }
-            Turn::Player2 => {
-                //P2 env var updates
-                let p2_state = check_advance_conditions(&self.p2); //Returns (betting_flag, raising_flag)
-                self.betting_phase_flag_p2 = p2_state.0;
-                self.raising_phase_flag_p2 = p2_state.1;
-            }
-        }
-
-        //Updates the advance condition by phase. Splitting the updates by both phase and turn
-        //ensures correctness and continuity every frame
-        match self.turnphase.1 {
-            Phase::Betting => {
-                self.p1_end_ready = self.betting_phase_flag_p1;
-                self.p2_end_ready = self.betting_phase_flag_p2;
-            }
-            Phase::Raising => {
-                self.p1_end_ready = self.raising_phase_flag_p1;
-                self.p2_end_ready = self.raising_phase_flag_p2;
-            }
-            Phase::Rolling => {
-                self.p1_end_ready = self.rolling_phase_flag_p1;
-                self.p2_end_ready = self.rolling_phase_flag_p2;
-            }
-            //_             => panic!("Unhandled turnphase update in dicecoin_mpc's update");
-        }
+        self.manage_phase_and_end_flags();
 
         //DEBUG block
-        println!("Turn: {:?}, Phase {:?}", self.turnphase.0.clone(), self.turnphase.1.clone());
-
+        println!("Turn: {:?}, Phase {:?} High Roller is Turn: {:?}", self.turnphase.0.clone(), self.turnphase.1.clone(), self.highest_roller.clone());
         Ok(())
     }
 
@@ -183,31 +160,28 @@ impl DicecoinMPC {
                 SceneReturn::Good
             }
             SceneReturn::Finished => { //A player has ended their turn, transition to the next turnphase (pairing of turn and phase)
-                self.turnphase = transition_turnphase(&self.turnphase.0, &self.turnphase.1);
-                //We can guarantee that after a transition there must be a player action so all progression conditions are implied not met.
-                //P1
-                self.betting_phase_flag_p1 = false;
-                self.raising_phase_flag_p1 = false;
-                self.rolling_phase_flag_p1 = false;
-                //P2
-                self.betting_phase_flag_p2 = false;
-                self.raising_phase_flag_p2 = false;
-                self.rolling_phase_flag_p2 = false;
-                //Animation controller
-                self.p1_end_ready = false;
-                self.p2_end_ready = false;
-                //We need to know which player gets to pick Coos or Pearls
-                if self.turnphase.0 == Turn::Player1 && self.turnphase.1 == Phase::Rolling{ //true when turnphase == (Player1, Rolling), I.E. start of rolling phase
+
+                //This only should be called just before the rolling phase so we can guarantee that during the rolling phase there is a set highest roller
+                if self.turnphase.0 == Turn::Player2 && self.turnphase.1 == Phase::Raising{ //true when turnphase == (Player1, Rolling), I.E. start of rolling phase
                     self.highest_roller = high_roller(&self.p1, &self.p2); //compares total dice bet and randomly decides roller if even bet
                 }
+
+                self.turnphase = transition_turnphase(&self.turnphase.0, &self.turnphase.1);
+                //We can guarantee that after a transition there must be a player action so all progression conditions are implied not met.
+                self.set_env_false();
+
                 //We want to check for victory conditions when we get back to the first scene
                 if self.turnphase.0 == Turn::Player1 && self.turnphase.1 == Phase::Betting{ // This will execute at the top of every round
                     if *self.p1.check_dice_total() == 0 { //Player 1 loses
                         self.game_winner = Turn::Player2;
                         self.quit_flag = true;
+                        println!("Player 2 is the winner! Thank you for playing Dicecoin!");
+                        return SceneReturn::Finished //Terminate the game
                     } else if *self.p2.check_dice_total() == 0 { //Player 2 loses
                         self.game_winner = Turn::Player1;
                         self.quit_flag = true;
+                        println!("Player 1 is the winner! Thank you for playing Dicecoin!");
+                        return SceneReturn::Finished //Terminate the game
                     }
                 }
                 SceneReturn::Good //This signifies that the next player may go
@@ -287,6 +261,60 @@ impl DicecoinMPC {
         };
         Ok(x)
     }
+
+    //Sets environment variables to false
+    fn set_env_false (&mut self) {
+        //P1
+        self.betting_phase_flag_p1 = false;
+        self.raising_phase_flag_p1 = false;
+        self.rolling_phase_flag_p1 = false;
+        //P2
+        self.betting_phase_flag_p2 = false;
+        self.raising_phase_flag_p2 = false;
+        self.rolling_phase_flag_p2 = false;
+        //Animation controller
+        self.p1_end_ready = false;
+        self.p2_end_ready = false;
+    }
+
+    //Checks and updates the first two environment variables
+    #[allow(unreachable_patterns)] //In case somebody adds more enums we want to help make sure they are managed
+    fn manage_phase_and_end_flags (&mut self) {
+        match self.turnphase.0 {
+            Turn::Player1 => {
+                //P1 env var updates
+                let p1_state = check_advance_conditions(&self.p1); //Returns (betting_flag, raising_flag)
+                self.betting_phase_flag_p1 = p1_state.0;
+                self.raising_phase_flag_p1 = p1_state.1;
+
+            }
+            Turn::Player2 => {
+                //P2 env var updates
+                let p2_state = check_advance_conditions(&self.p2); //Returns (betting_flag, raising_flag)
+                self.betting_phase_flag_p2 = p2_state.0;
+                self.raising_phase_flag_p2 = p2_state.1;
+            }
+            _             => panic!("Unhandled turnphase flag updating in dicecoin_mpc's update")
+        }
+
+        //Updates the advance condition by phase. Splitting the updates by both phase and turn
+        //ensures correctness and continuity every frame
+        match self.turnphase.1 {
+            Phase::Betting => {
+                self.p1_end_ready = self.betting_phase_flag_p1;
+                self.p2_end_ready = self.betting_phase_flag_p2;
+            }
+            Phase::Raising => {
+                self.p1_end_ready = self.raising_phase_flag_p1;
+                self.p2_end_ready = self.raising_phase_flag_p2;
+            }
+            Phase::Rolling => {
+                self.p1_end_ready = self.rolling_phase_flag_p1;
+                self.p2_end_ready = self.rolling_phase_flag_p2;
+            }
+            _             => panic!("Unhandled turnphase end flag update in dicecoin_mpc's update")
+        }
+    }
 }
 
 //Player controllers are put down here to make this more readable
@@ -357,8 +385,7 @@ impl DicecoinMPC {
                                 self.p2.roll_dice();
                                 //We know the winner so it is ok to assign winnings after player ends turn
                                 self.winner = evaluate_coos(&self.p1, &self.p2);
-                                //A decision was made so the game can advance
-                                self.rolling_phase_flag_p1 = true;
+                                self.rolling_phase_flag_p1 = true; //A decision was made so the game can advance
                                 SceneReturn::Good
                             } else {
                                 safe_play(&self.bad_boop);
@@ -373,8 +400,7 @@ impl DicecoinMPC {
                                 self.p2.roll_dice();
                                 //We know the winner so it is ok to assign winnings after player ends turn
                                 self.winner = evaluate_pearls(&self.p1, &self.p2);
-                                //A decision was made so the game can advance
-                                self.rolling_phase_flag_p1 = true;
+                                self.rolling_phase_flag_p1 = true; //A decision was made so the game can advance
                                 SceneReturn::Good
                             } else {
                                 safe_play(&self.bad_boop);
@@ -384,11 +410,9 @@ impl DicecoinMPC {
                         Keycode::Return => {
                             if self.p1_end_ready { //Player is allowed to end their turn
                                 safe_play(&self.good_boop);
-                                if !win(&mut self.p1, &mut self.p2, &self.winner) {
+                                if !win(&mut self.p1, &mut self.p2, &self.winner) { //Note: win handles giving the dice to winners
                                     println!("Overflow occurred, but guards prevented bad game flow. Check your design.");
                                 }
-                                self.p1.clear_roll_result();
-                                self.p2.clear_roll_result();
                                 self.p1_end_ready = false;
                                 SceneReturn::Finished
                             } else { //Player may not end their turn
@@ -472,7 +496,7 @@ impl DicecoinMPC {
                             self.winner = evaluate_coos(&self.p1, &self.p2);
                             //A decision was made so the game can advance
                             self.rolling_phase_flag_p2 = true;
-                            SceneReturn::Finished
+                            SceneReturn::Good
                         }
                         Keycode::P => {
                             safe_play(&self.good_boop);
@@ -483,16 +507,14 @@ impl DicecoinMPC {
                             self.winner = evaluate_pearls(&self.p1, &self.p2);
                             //A decision was made so the game can advance
                             self.rolling_phase_flag_p2 = true;
-                            SceneReturn::Finished
+                            SceneReturn::Good
                         }
                         Keycode::Return => {
                             if self.p2_end_ready { //Player is allowed to end their turn
                                 safe_play(&self.good_boop);
-                                if !win(&mut self.p1, &mut self.p2, &self.winner) {
+                                if !win(&mut self.p1, &mut self.p2, &self.winner) { //Note: win handles giving the dice to winners
                                     println!("Overflow occurred, but guards prevented bad game flow. Check your design.");
                                 }
-                                self.p1.clear_roll_result();
-                                self.p2.clear_roll_result();
                                 self.p2_end_ready = false;
                                 SceneReturn::Finished
                             } else { //Player may not end their turn

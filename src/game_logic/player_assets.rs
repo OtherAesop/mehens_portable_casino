@@ -193,8 +193,8 @@ impl PlayerAssets {
 
         //Roll Result
         set_color(ctx, self.cyan); //By setting this we can add color on top of whatever we are drawing
-        draw(ctx, &self.roll_result_p1, Point2::new(39.0,256.0), 0.0);
-        draw(ctx, &self.roll_result_p2, Point2::new(659.0,322.0), 0.0);
+        draw(ctx, &self.roll_result_p2, Point2::new(39.0,256.0), 0.0);
+        draw(ctx, &self.roll_result_p1, Point2::new(659.0,322.0), 0.0);
         set_color(ctx, WHITE); //Need to reset to default color after done  to avoid coloring something else
 
         //Draw the rest of text
@@ -222,7 +222,7 @@ impl PlayerAssets {
         //Draws the rolling dice on screen
         //We use a positive offset so the direction goes right, towards the center
         let mut counter: f32 = 0.0;
-        for dice in p1_rolling_dice.iter(){
+        for dice in p2_rolling_dice.iter(){
              let mut draw_me = match dice {
                 DiceType::D2 => &mut self.d2,
                 DiceType::D4 => &mut self.d4,
@@ -232,6 +232,7 @@ impl PlayerAssets {
                 DiceType::D10p => &mut self.d10p,
                 DiceType::D12 => &mut self.d12,
                 DiceType::D20 => &mut self.d20,
+                 _               => panic!("Unhandled DiceType in draw_var"),
             };
             draw_me.add(make_param((211.0 + (counter * ROLLING_OFFSET),281.0), (1.0,1.0), 0.0, (0.0, 0.0)));
             draw(ctx, draw_me, Point2::new(0.0,0.0), 0.0);
@@ -240,15 +241,9 @@ impl PlayerAssets {
             counter += 1.0;
         }
 
-        /*
-        self.enter.add(make_param((649.0,414.0), (1.0,1.0), 0.0, (0.0, self.enter_offset.1)));
-        draw(ctx,&self.enter, Point2::new(0.0, 0.0), 0.0)?;
-        self.enter.clear();
-        */
-
         //We use a negative offset so it goes right, towards the center
         counter = 0.0; //reset counter
-        for dice in p2_rolling_dice.iter(){
+        for dice in p1_rolling_dice.iter(){
             let mut draw_me = match dice {
                 DiceType::D2 => &mut self.d2,
                 DiceType::D4 => &mut self.d4,
@@ -258,6 +253,7 @@ impl PlayerAssets {
                 DiceType::D10p => &mut self.d10p,
                 DiceType::D12 => &mut self.d12,
                 DiceType::D20 => &mut self.d20,
+                _               => panic!("Unhandled DiceType in draw_var"),
             };
             draw_me.add(make_param((540.0 + (counter * ROLLING_OFFSET_NEG),281.0), (1.0,1.0), 0.0, (0.0, 0.0)));
             draw(ctx, draw_me, Point2::new(0.0, 0.0), 0.0);
@@ -279,6 +275,7 @@ impl PlayerAssets {
                 DiceType::D10p => &mut self.d10p,
                 DiceType::D12 => &mut self.d12,
                 DiceType::D20 => &mut self.d20,
+                _               => panic!("Unhandled DiceType in draw_var"),
             };
             draw_me.add(make_param((p1_bet_coordinates[counter2].0,p1_bet_coordinates[counter2].1), (1.0,1.0), 0.0, (0.0,0.0)));
             draw(ctx, draw_me, Point2::new(0.0,0.0), 0.0);
@@ -298,6 +295,7 @@ impl PlayerAssets {
                 DiceType::D10p => &mut self.d10p,
                 DiceType::D12 => &mut self.d12,
                 DiceType::D20 => &mut self.d20,
+                _               => panic!("Unhandled DiceType in draw_var"),
             };
             draw_me.add(make_param((p2_bet_coordinates[counter2].0,p2_bet_coordinates[counter2].1), (1.0,1.0), 0.0, (0.0,0.0)));
             draw(ctx, draw_me, Point2::new(0.0,0.0), 0.0);

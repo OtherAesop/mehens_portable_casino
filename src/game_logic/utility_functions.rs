@@ -53,10 +53,25 @@ pub fn win(p1: &mut Player, p2: &mut Player, winner: &Turn) -> bool{
             DiceType::D10p  => p1_temp_dice.push(DiceType::D10p),
             DiceType::D12   => p1_temp_dice.push(DiceType::D12),
             DiceType::D20   => p1_temp_dice.push(DiceType::D20),
-            //_             => panic!("Unhandled DiceType in winner - p1"),
+            _             => panic!("Unhandled DiceType in winner - p1"),
         }
     }
     p1.clear_bet();
+
+    for x in p1.check_rolling_dice().iter() {
+        match x {
+            DiceType::D2    => p1_temp_dice.push(DiceType::D2),
+            DiceType::D4    => p1_temp_dice.push(DiceType::D4),
+            DiceType::D6    => p1_temp_dice.push(DiceType::D6),
+            DiceType::D8    => p1_temp_dice.push(DiceType::D8),
+            DiceType::D10   => p1_temp_dice.push(DiceType::D10),
+            DiceType::D10p  => p1_temp_dice.push(DiceType::D10p),
+            DiceType::D12   => p1_temp_dice.push(DiceType::D12),
+            DiceType::D20   => p1_temp_dice.push(DiceType::D20),
+            _             => panic!("Unhandled DiceType in winner - p1"),
+        }
+    }
+    p1.clear_rolling_dice();
 
     let mut p2_temp_dice: Vec<DiceType> = Vec::new();;
     for y in p2.check_bet().iter() {
@@ -69,10 +84,26 @@ pub fn win(p1: &mut Player, p2: &mut Player, winner: &Turn) -> bool{
             DiceType::D10p  => p2_temp_dice.push(DiceType::D10p),
             DiceType::D12   => p2_temp_dice.push(DiceType::D12),
             DiceType::D20   => p2_temp_dice.push(DiceType::D20),
-            //_             => panic!("Unhandled DiceType in winner - p1"),
+            _             => panic!("Unhandled DiceType in winner - p1"),
         }
     }
     p2.clear_bet();
+
+    for y in p2.check_rolling_dice().iter() {
+        match y {
+            DiceType::D2    => p2_temp_dice.push(DiceType::D2),
+            DiceType::D4    => p2_temp_dice.push(DiceType::D4),
+            DiceType::D6    => p2_temp_dice.push(DiceType::D6),
+            DiceType::D8    => p2_temp_dice.push(DiceType::D8),
+            DiceType::D10   => p2_temp_dice.push(DiceType::D10),
+            DiceType::D10p  => p2_temp_dice.push(DiceType::D10p),
+            DiceType::D12   => p2_temp_dice.push(DiceType::D12),
+            DiceType::D20   => p2_temp_dice.push(DiceType::D20),
+            _             => panic!("Unhandled DiceType in winner - p1"),
+        }
+    }
+    p2.clear_rolling_dice();
+
 
     //Due to guards deeper below, an overflow in score (which is impossible anyway) will only
     //cause the score to stay at the max value. Values checked because good programming.
@@ -89,7 +120,7 @@ pub fn win(p1: &mut Player, p2: &mut Player, winner: &Turn) -> bool{
             //Add P1's dice to P2's bank
             retval = p2.get_dice(&p1_temp_dice);
         },
-        //_             => panic!("Unhandled Turn in winner - winner match statement"),
+        _             => panic!("Unhandled Turn in winner - winner match statement"),
     }
 
     retval
@@ -160,8 +191,8 @@ pub fn check_advance_conditions (p1: &Player) -> (bool,bool) {
 //Determines who the highest better is between two players or decides randomly if even
 //Again, turns are used because they are an exhaustive list of all possible players
 pub fn high_roller(p1: &Player, p2: &Player) -> Turn {
-    let p1_dice_count = p1.check_bet().len();
-    let p2_dice_count = p2.check_bet().len();
+    let p1_dice_count = if p1.check_bet().is_empty() { 0 } else { p1.check_bet().len() };
+    let p2_dice_count = if p2.check_bet().is_empty() { 0 } else { p2.check_bet().len() };
     let retval;
 
     if p1_dice_count > p2_dice_count {
@@ -181,6 +212,7 @@ pub fn high_roller(p1: &Player, p2: &Player) -> Turn {
 }
 
 //Transitions turnphases appropriately and returns new turnphase
+#[allow(unreachable_patterns)]
 pub fn transition_turnphase (turn: &Turn, phase: &Phase) -> (Turn, Phase){
     let turnphase = (turn, phase);
 
@@ -191,7 +223,7 @@ pub fn transition_turnphase (turn: &Turn, phase: &Phase) -> (Turn, Phase){
         (Turn::Player2, Phase::Raising)   => (Turn::Player1, Phase::Rolling),
         (Turn::Player1, Phase::Rolling)   => (Turn::Player2, Phase::Rolling),
         (Turn::Player2, Phase::Rolling)   => (Turn::Player1, Phase::Betting),
-        //_               => panic!("Unhandled turnphase in transition_turnphase."),
+        _               => panic!("Unhandled turnphase in transition_turnphase."),
     }
 }
 
@@ -268,7 +300,7 @@ pub fn make_scenes() -> Vec<SceneType> {
 
     scenes.push(SceneType::Intro);
     scenes.push(SceneType::Game);
-    scenes.push(SceneType::Exit);
+    //scenes.push(SceneType::Exit);
 
     scenes
 }

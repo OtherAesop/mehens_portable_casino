@@ -110,6 +110,31 @@ to pretty much every file so it is my hope that you can click on any file and kn
 
 2) The intended purpose of the code
 
+### Gameplay Instructions
+
+This project is meant as a showcase and thus does not implement the Setup phase or the Purchase phase. I make minimal use
+of text in this game due so it is important to pay attention to the Shift Keys, and which are highlighted. Please note that
+in the event of a tie in bet or rolled result, the winner of that contest will be decided randomly.
+
+Player 1 is on the top half of the screen and has the color red while Player 2 is on the lower half and has the color blue 
+
+#### Controls Player 1
+
+Q, W, E, R, A, S, D, F - Press these to bet or put up a corresponding Dicecoin during the appropriate phase (Player 1)
+
+Left Shift - Press this to end your turn, this will be greyed out when you are not allowed to end (Player 1)
+
+#### Controls Player 2
+
+Y, U, I, O, H, J, K, L - Press these to bet or put up a corresponding Dicecoin during the appropriate phase (Player 2)
+
+Right Shift - Press this to end your turn, this will be greyed out when you are not allowed to end (Player 2)
+
+#### Controls Coos/Pearls
+
+C - Press this to gamble on Coos (The shift key of the player who has the right to make this move will be colored)
+P - Press this to gamble on Pearls (The shift key of the player who has the right to make this move will be colored)
+
 ### Installation
 
 #### Windows
@@ -117,7 +142,8 @@ to pretty much every file so it is my hope that you can click on any file and kn
 Download the project into an IDE of your choice that supports Rust and run the cargo command 'cargo run --release'
 I recommend IntelliJ Community Edition or CLion. Visual Studio is untested.
 
-Download the precompiled executable here and run it, being careful that all the files are in the same folder
+Download the precompiled executable release [here][2] and run it, being careful that all the files are in the same folder.
+Please note the Dicecoin STL files must be downloaded through that zip file in order to reduce the download cost of cloning
 
 #### Mac
 
@@ -135,3 +161,4 @@ Follow [these beautiful instructions][1] courtesy of GitHub to clone the reposit
 -Dicecoin STL file
 
 [1](https://services.github.com/on-demand/github-cli/clone-repo-cli "How to Clone a Repo in Linux")
+[2](https://github.com/MushuYoWushu/mehens_portable_casino/releases "Mehen's Portable Casino Release Download")

@@ -34,6 +34,7 @@ use game_logic::utility_functions::*;
 use ggez::conf::{WindowSetup, WindowMode, NumSamples, FullscreenType};
 use ggez::event;
 
+
 fn main() {
     //We need to store the scene Vec somewhere so we can make a circular iterator reference to it
     let scenes: Vec<SceneType> = make_scenes();

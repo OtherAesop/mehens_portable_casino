@@ -103,11 +103,35 @@ Canonical Dicecoin Definitions (note D stands for dice and the number stands for
 
 A problem I ran into when first starting with Rust as a tool for game development was that there were no well commented
 examples available, so throughout the project code I have made the effort to document the code so that it is obvious for
-beginners and as little effort as possible is needed to get up and running with something simple.
+beginners and as little effort as possible is needed to get up and running with something simple. I extended this practice
+to pretty much every file so it is my hope that you can click on any file and know the following
+
+1) At least a vague idea of what the syntax means
+
+2) The intended purpose of the code
+
+### Installation
+
+#### Windows
+
+Download the project into an IDE of your choice that supports Rust and run the cargo command 'cargo run --release'
+I recommend IntelliJ Community Edition or CLion. Visual Studio is untested.
+
+Download the precompiled executable here and run it, being careful that all the files are in the same folder
+
+#### Mac
+
+I imagine the process is similar to Windows but I never use Mac's, so until I get a platform to test on or somebody is kind
+enough to do a test run for me, this is unsupported.
+
+#### Linux
+
+The same IDE instructions as for Windows apply.
+
+Follow [these beautiful instructions][1] courtesy of GitHub to clone the repository and then type 'cargo run --release' 
 
 ## Planned Features
 
--Dicecoin gambling game
-
 -Dicecoin STL file
 
+[1](https://services.github.com/on-demand/github-cli/clone-repo-cli "How to Clone a Repo in Linux")

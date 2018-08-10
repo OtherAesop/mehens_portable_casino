@@ -81,8 +81,7 @@ pub struct DicecoinMPC {
     highest_roller: Turn, //Turn works because the highest_roller must be a player. This decides who picks Coos or Pearls
 }
 
-#[allow(unused_variables)]
-#[allow(dead_code)]
+#[allow(unreachable_patterns)] //In case someone adds enums I want error finding to be easier
 impl DicecoinMPC {
     //We should not worry about framerate limiting here since MainState handles calls
     pub fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
@@ -157,7 +156,7 @@ impl DicecoinMPC {
             //Check far below for player controller functions
             Turn::Player1   => self.p1_controller(ctx, keycode),
             Turn::Player2   => self.p2_controller(ctx, keycode),
-            //_               => SceneReturn::Err("Unhandled player encountered in dicecoin_mpc's key_down_event".to_string()),
+            _               => SceneReturn::Err("Unhandled player encountered in dicecoin_mpc's key_down_event".to_string()),
         };
 
         let retval = match msg {
@@ -562,5 +561,4 @@ impl DicecoinMPC {
 
         retval
     }
-
 }

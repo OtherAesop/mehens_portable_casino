@@ -22,7 +22,6 @@ cluttery text
 use ggez::error::{GameResult};
 use ggez::graphics::{Color};
 
-#[allow(unused)]
 #[derive(Debug, Clone, Copy)]
 pub struct ColorPalette{
     //Enter Key Colors

@@ -28,9 +28,11 @@ use ggez::event::{MouseButton, Keycode};
 use ggez::{Context, GameResult};
 
 use ggez::audio::Source;
+
 /*
 Here I define all the assets I will need to run a particular scene. This creates everything I need
 */
+
 pub struct IntroMPC {
     //Background image
     background_mpc: SpriteBatch,

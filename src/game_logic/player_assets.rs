@@ -22,7 +22,7 @@ use game_logic::utility_functions::{make_param};
 use gambling::dice_type::DiceType;
 
 //Ggez
-use ggez::graphics::{Image, Font, TextCached, Color, Scale, Point2, WHITE, BLACK, draw, set_color};
+use ggez::graphics::{Image, Font, TextCached, /*Color,*/ Scale, Point2, WHITE, BLACK, draw, set_color};
 use ggez::graphics::spritebatch::{SpriteBatch};
 
 
@@ -33,7 +33,6 @@ const SCORE_TEXT_PRINT_SIZE: f32 = 28.0;
 const ROLLING_OFFSET: f32 = 60.0;
 const ROLLING_OFFSET_NEG: f32 = -60.0;
 
-#[allow(unused)]
 pub struct PlayerAssets {
     //Dice Sprites
     d2: SpriteBatch,
@@ -45,8 +44,8 @@ pub struct PlayerAssets {
     d12: SpriteBatch,
     d20: SpriteBatch,
     //Text
-    cyan: Color,
-    font: Font,
+    //cyan: Color,
+    //font: Font,
     //P1
     d2_text_p1: TextCached,
     d4_text_p1: TextCached,
@@ -70,7 +69,7 @@ pub struct PlayerAssets {
 
 }
 
-#[allow(unused)]
+#[allow(unreachable_patterns)]
 impl PlayerAssets {
     pub fn new(ctx: &mut Context) -> GameResult<Self> {
 
@@ -94,7 +93,7 @@ impl PlayerAssets {
         let d20_spr = SpriteBatch::new(d20);
 
         //Text allocations
-        let pretty_color = Color::new(0.2, 0.60, 0.894, 1.0); //This is the cyan in the concept doc
+        //let _pretty_color = Color::new(0.2, 0.60, 0.894, 1.0); //This is the cyan in the concept doc
         let press_start_2p = Font::new_glyph_font(ctx, "/PressStart2P-Regular.ttf")?; //Usage taken from https://github.com/ggez/ggez/blob/master/examples/text_cached.rs
 
         let mut d2t = TextCached::new("0")?;
@@ -129,8 +128,8 @@ impl PlayerAssets {
             d12: d12_spr,
             d20: d20_spr,
             //Text
-            cyan: pretty_color,
-            font: press_start_2p,
+            //cyan: pretty_color,
+            //font: press_start_2p,
             //Number of banked Dicecoins
             //P1
             d2_text_p1: d2t.clone(), //Would end up basically doing this anyway
@@ -193,33 +192,33 @@ impl PlayerAssets {
         let p2_bet_coordinates = [(33.0,338.0),(97.0,338.0),(33.0,400.0),(97.0,400.0),(33.0,463.0),(97.0,463.0),(33.0,526.0),(97.0,526.0)];  //[d2,d4,d6,d8,d10,d10p,d12,d20] coordinates
 
         //Roll Result
-        set_color(ctx, colors.p1_roll_result); //By setting this we can add color on top of whatever we are drawing
-        draw(ctx, &self.roll_result_p1, Point2::new(659.0,322.0), 0.0);
-        set_color(ctx, colors.p2_roll_result);
-        draw(ctx, &self.roll_result_p2, Point2::new(39.0,256.0), 0.0);
-        set_color(ctx, WHITE); //Need to reset to default color after done  to avoid coloring something else
+        set_color(ctx, colors.p1_roll_result)?; //By setting this we can add color on top of whatever we are drawing
+        draw(ctx, &self.roll_result_p1, Point2::new(659.0,322.0), 0.0)?;
+        set_color(ctx, colors.p2_roll_result)?;
+        draw(ctx, &self.roll_result_p2, Point2::new(39.0,256.0), 0.0)?;
+        set_color(ctx, WHITE)?; //Need to reset to default color after done  to avoid coloring something else
 
         //Draw the rest of text
-        set_color(ctx, BLACK); //By setting this we can add color on top of whatever we are drawing
+        set_color(ctx, BLACK)?; //By setting this we can add color on top of whatever we are drawing
         //P1
-        draw(ctx, &self.d2_text_p1, Point2::new(237.0,62.0), 0.0);
-        draw(ctx, &self.d4_text_p1, Point2::new(340.0,62.0), 0.0);
-        draw(ctx, &self.d6_text_p1, Point2::new(441.0,61.0), 0.0);
-        draw(ctx, &self.d8_text_p1, Point2::new(543.0,60.0), 0.0);
-        draw(ctx, &self.d10_text_p1, Point2::new(240.0,175.0), 0.0);
-        draw(ctx, &self.d10p_text_p1, Point2::new(341.0,175.0), 0.0);
-        draw(ctx, &self.d12_text_p1, Point2::new(441.0,174.0), 0.0);
-        draw(ctx, &self.d20_text_p1, Point2::new(541.0,175.0), 0.0);
+        draw(ctx, &self.d2_text_p1, Point2::new(237.0,62.0), 0.0)?;
+        draw(ctx, &self.d4_text_p1, Point2::new(340.0,62.0), 0.0)?;
+        draw(ctx, &self.d6_text_p1, Point2::new(441.0,61.0), 0.0)?;
+        draw(ctx, &self.d8_text_p1, Point2::new(543.0,60.0), 0.0)?;
+        draw(ctx, &self.d10_text_p1, Point2::new(240.0,175.0), 0.0)?;
+        draw(ctx, &self.d10p_text_p1, Point2::new(341.0,175.0), 0.0)?;
+        draw(ctx, &self.d12_text_p1, Point2::new(441.0,174.0), 0.0)?;
+        draw(ctx, &self.d20_text_p1, Point2::new(541.0,175.0), 0.0)?;
         //P2
-        draw(ctx, &self.d2_text_p2, Point2::new(237.0,405.0), 0.0);
-        draw(ctx, &self.d4_text_p2, Point2::new(340.0,405.0), 0.0);
-        draw(ctx, &self.d6_text_p2, Point2::new(441.0,404.0), 0.0);
-        draw(ctx, &self.d8_text_p2, Point2::new(543.0,403.0), 0.0);
-        draw(ctx, &self.d10_text_p2, Point2::new(240.0,518.0), 0.0);
-        draw(ctx, &self.d10p_text_p2, Point2::new(341.0,518.0), 0.0);
-        draw(ctx, &self.d12_text_p2, Point2::new(441.0,517.0), 0.0);
-        draw(ctx, &self.d20_text_p2, Point2::new(541.0,518.0), 0.0);
-        set_color(ctx, WHITE); //Need to reset to default color after done to avoid coloring something else
+        draw(ctx, &self.d2_text_p2, Point2::new(237.0,405.0), 0.0)?;
+        draw(ctx, &self.d4_text_p2, Point2::new(340.0,405.0), 0.0)?;
+        draw(ctx, &self.d6_text_p2, Point2::new(441.0,404.0), 0.0)?;
+        draw(ctx, &self.d8_text_p2, Point2::new(543.0,403.0), 0.0)?;
+        draw(ctx, &self.d10_text_p2, Point2::new(240.0,518.0), 0.0)?;
+        draw(ctx, &self.d10p_text_p2, Point2::new(341.0,518.0), 0.0)?;
+        draw(ctx, &self.d12_text_p2, Point2::new(441.0,517.0), 0.0)?;
+        draw(ctx, &self.d20_text_p2, Point2::new(541.0,518.0), 0.0)?;
+        set_color(ctx, WHITE)?; //Need to reset to default color after done to avoid coloring something else
 
         //Draws the rolling dice on screen for P2
         //We use a positive offset so the direction goes right, towards the center
@@ -236,11 +235,11 @@ impl PlayerAssets {
                 DiceType::D20 => &mut self.d20,
                  _               => panic!("Unhandled DiceType in draw_var"),
             };
-            set_color(ctx, colors.p2_dice);
+            set_color(ctx, colors.p2_dice)?;
             draw_me.add(make_param((211.0 + (counter * ROLLING_OFFSET),276.0), (1.0,1.0), 0.0, (0.0, 0.0)));
-            draw(ctx, draw_me, Point2::new(0.0,0.0), 0.0);
+            draw(ctx, draw_me, Point2::new(0.0,0.0), 0.0)?;
             draw_me.clear();
-            set_color(ctx, WHITE);
+            set_color(ctx, WHITE)?;
 
             counter += 1.0;
         }
@@ -260,11 +259,11 @@ impl PlayerAssets {
                 DiceType::D20 => &mut self.d20,
                 _               => panic!("Unhandled DiceType in draw_var"),
             };
-            set_color(ctx, colors.p1_dice);
+            set_color(ctx, colors.p1_dice)?;
             draw_me.add(make_param((540.0 + (counter * ROLLING_OFFSET_NEG),276.0), (1.0,1.0), 0.0, (0.0, 0.0)));
-            draw(ctx, draw_me, Point2::new(0.0, 0.0), 0.0);
+            draw(ctx, draw_me, Point2::new(0.0, 0.0), 0.0)?;
             draw_me.clear();
-            set_color(ctx, WHITE);
+            set_color(ctx, WHITE)?;
 
             counter += 1.0;
         } //Remember to reset counter if you want to use it again
@@ -284,11 +283,11 @@ impl PlayerAssets {
                 DiceType::D20 => &mut self.d20,
                 _               => panic!("Unhandled DiceType in draw_var"),
             };
-            set_color(ctx, colors.p1_dice);
+            set_color(ctx, colors.p1_dice)?;
             draw_me.add(make_param((p1_bet_coordinates[counter2].0,p1_bet_coordinates[counter2].1), (1.0,1.0), 0.0, (0.0,0.0)));
-            draw(ctx, draw_me, Point2::new(0.0,0.0), 0.0);
+            draw(ctx, draw_me, Point2::new(0.0,0.0), 0.0)?;
             draw_me.clear();
-            set_color(ctx, WHITE);
+            set_color(ctx, WHITE)?;
 
             counter2 += 1;
         }
@@ -306,11 +305,11 @@ impl PlayerAssets {
                 DiceType::D20 => &mut self.d20,
                 _               => panic!("Unhandled DiceType in draw_var"),
             };
-            set_color(ctx, colors.p2_dice);
+            set_color(ctx, colors.p2_dice)?;
             draw_me.add(make_param((p2_bet_coordinates[counter2].0,p2_bet_coordinates[counter2].1), (1.0,1.0), 0.0, (0.0,0.0)));
-            draw(ctx, draw_me, Point2::new(0.0,0.0), 0.0);
+            draw(ctx, draw_me, Point2::new(0.0,0.0), 0.0)?;
             draw_me.clear();
-            set_color(ctx, WHITE);
+            set_color(ctx, WHITE)?;
 
             counter2 += 1;
         } //Remember to reset counter2 if you want to use it again

@@ -25,7 +25,6 @@ mod game_logic;
 mod scenes;
 
 //import the needed namespaces
-//DEBUG: these are included so the compiler goes over them.
 use game_logic::scene_type::SceneType;
 use game_logic::main_state::*;
 use game_logic::utility_functions::*;

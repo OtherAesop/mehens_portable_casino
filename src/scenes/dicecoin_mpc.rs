@@ -132,14 +132,14 @@ impl DicecoinMPC {
 
         //Draws Enter button on screen
         if self.turnphase.0 == Turn::Player2 {if self.p2_end_ready { set_color(ctx, self.colors.p2_highlight)?} else { set_color(ctx, self.colors.p2_fade_highlight)?; };}
-        self.enter.add(make_param((649.0,414.0), (1.0,1.0), 0.0, (0.0, self.enter_offset.1)));
+        self.enter.add(make_param((631.0,447.0), (1.0,1.0), 0.0, (0.0, self.enter_offset.1)));
         draw(ctx,&self.enter, Point2::new(0.0, 0.0), 0.0)?;
         self.enter.clear();
         set_color(ctx, WHITE)?; //In case there is a highlight active we want to reset
 
         //Draws EnterReverse button on screen
         if self.turnphase.0 == Turn::Player1 {if self.p1_end_ready { set_color(ctx, self.colors.p1_highlight)?} else { set_color(ctx, self.colors.p1_fade_highlight)?; };}
-        self.enter_flip.add(make_param((36.0,34.0), (1.0,1.0), 0.0, (0.0, self.enter_flip_offset.1)));
+        self.enter_flip.add(make_param((13.0,80.0), (1.0,1.0), 0.0, (0.0, self.enter_flip_offset.1)));
         draw(ctx,&self.enter_flip, Point2::new(0.0, 0.0), 0.0)?;
         self.enter_flip.clear();
         set_color(ctx, WHITE)?; //In case there is a highlight active we want to reset
@@ -221,9 +221,9 @@ impl DicecoinMPC {
         let bg_spr = SpriteBatch::new(bg);
 
         //Enter button allocations
-        let enter = Image::new(ctx, "/EnterAdjusted.png")?;
+        let enter = Image::new(ctx, "/RightShift.png")?;
         let enter_spr = SpriteBatch::new(enter);
-        let enter_flipped = Image::new(ctx, "/EnterReverse.png")?;
+        let enter_flipped = Image::new(ctx, "/LeftShift.png")?;
         let enter_flipped_spr = SpriteBatch::new(enter_flipped);
 
         //Font alloc
@@ -363,7 +363,7 @@ impl DicecoinMPC {
                     Keycode::S      => { if self.p1.bet_rolling_dice(DiceType::D10p) {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
                     Keycode::D      => { if self.p1.bet_rolling_dice(DiceType::D12)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
                     Keycode::F      => { if self.p1.bet_rolling_dice(DiceType::D20)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
-                    Keycode::Return => {
+                    Keycode::LShift => {
                         if self.p1_end_ready { //Player is allowed to end their turn
                             safe_play(&self.good_boop);
                             self.p1_end_ready = false;
@@ -386,7 +386,7 @@ impl DicecoinMPC {
                     Keycode::S      => { if self.p1.bet_dice(DiceType::D10p) {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
                     Keycode::D      => { if self.p1.bet_dice(DiceType::D12)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
                     Keycode::F      => { if self.p1.bet_dice(DiceType::D20)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
-                    Keycode::Return => {
+                    Keycode::LShift => {
                         if self.p1_end_ready { //Player is allowed to end their turn
                             safe_play(&self.good_boop);
                             self.p1_end_ready = false;
@@ -436,7 +436,7 @@ impl DicecoinMPC {
                                 SceneReturn::Good
                             }
                         }
-                        Keycode::Return => {
+                        Keycode::LShift => {
                             if self.p1_end_ready { //Player is allowed to end their turn
                                 safe_play(&self.good_boop);
                                 if !win(&mut self.p1, &mut self.p2, &self.winner) { //Note: win handles giving the dice to winners
@@ -473,7 +473,7 @@ impl DicecoinMPC {
                     Keycode::J      => { if self.p2.bet_rolling_dice(DiceType::D10p) {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
                     Keycode::K      => { if self.p2.bet_rolling_dice(DiceType::D12)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
                     Keycode::L      => { if self.p2.bet_rolling_dice(DiceType::D20)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
-                    Keycode::Return => {
+                    Keycode::RShift => {
                         if self.p2_end_ready { //Player is allowed to end their turn
                             safe_play(&self.good_boop);
                             self.p2_end_ready = false;
@@ -496,7 +496,7 @@ impl DicecoinMPC {
                     Keycode::J      => { if self.p2.bet_dice(DiceType::D10p) {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
                     Keycode::K      => { if self.p2.bet_dice(DiceType::D12)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
                     Keycode::L      => { if self.p2.bet_dice(DiceType::D20)  {safe_play(&self.good_boop);} else {safe_play(&self.bad_boop);} SceneReturn::Good }
-                    Keycode::Return => {
+                    Keycode::RShift => {
                         if self.p2_end_ready { //Player is allowed to end their turn
                             safe_play(&self.good_boop);
                             self.p2_end_ready = false;
@@ -538,7 +538,7 @@ impl DicecoinMPC {
                             self.rolling_phase_flag_p2 = true;
                             SceneReturn::Good
                         }
-                        Keycode::Return => {
+                        Keycode::RShift => {
                             if self.p2_end_ready { //Player is allowed to end their turn
                                 safe_play(&self.good_boop);
                                 if !win(&mut self.p1, &mut self.p2, &self.winner) { //Note: win handles giving the dice to winners

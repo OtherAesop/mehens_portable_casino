@@ -52,14 +52,14 @@ const MAX_ROLL_DICE: usize      = 2;
 const MAX_DICE_HELD: u32        = 9; //Need to compare to u32 values
 const MAX_ROLL_VALUE: u64       = 9999; //Need to compare to Dicecoins roll return value which is u64
 
-const DEF_D2: u32 = 9;
-const DEF_D4: u32 = 9;
-const DEF_D6: u32 = 9;
-const DEF_D8: u32 = 9;
-const DEF_D10: u32 = 9;
-const DEF_D10P: u32 = 9;
-const DEF_D12: u32 = 9;
-const DEF_D20: u32 = 9;
+const DEF_D2: u32 = 3;
+const DEF_D4: u32 = 3;
+const DEF_D6: u32 = 3;
+const DEF_D8: u32 = 3;
+const DEF_D10: u32 = 3;
+const DEF_D10P: u32 = 3;
+const DEF_D12: u32 = 3;
+const DEF_D20: u32 = 3;
 
 pub struct Player {
     //Dicecoin canonical definition (These are the dicecoins as defined by my project)

@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //My imports
+use game_logic::color_palette::ColorPalette;
 use game_logic::scene_return_values::SceneReturn;
 use game_logic::turns::Turn;
 use game_logic::phase::Phase;
@@ -26,7 +27,7 @@ use game_logic::utility_functions::*;
 use gambling::dice_type::DiceType;
 
 //Ggez
-use ggez::graphics::{FilterMode,Image, Point2, Font, Color, WHITE, draw, set_default_filter, set_color};
+use ggez::graphics::{FilterMode,Image, Point2, Font, WHITE, draw, set_default_filter, set_color};
 use ggez::graphics::spritebatch::{SpriteBatch};
 
 use ggez::event;
@@ -45,8 +46,7 @@ pub struct DicecoinMPC {
     //Background image
     background_dc_mpc: SpriteBatch,
     //Text
-    p1_highlight: Color,
-    p2_highlight: Color,
+    colors: ColorPalette,
     font: Font,
     //Sounds
     bad_boop: Source,
@@ -131,21 +131,21 @@ impl DicecoinMPC {
         self.background_dc_mpc.clear();
 
         //Draws Enter button on screen
-        if self.turnphase.0 == Turn::Player2 {set_color(ctx, self.p1_highlight)?;}
+        if self.turnphase.0 == Turn::Player2 {if self.p2_end_ready { set_color(ctx, self.colors.p2_highlight)?} else { set_color(ctx, self.colors.p2_fade_highlight)?; };}
         self.enter.add(make_param((649.0,414.0), (1.0,1.0), 0.0, (0.0, self.enter_offset.1)));
         draw(ctx,&self.enter, Point2::new(0.0, 0.0), 0.0)?;
         self.enter.clear();
         set_color(ctx, WHITE)?; //In case there is a highlight active we want to reset
 
         //Draws EnterReverse button on screen
-        if self.turnphase.0 == Turn::Player1 {set_color(ctx, self.p2_highlight)?;}
+        if self.turnphase.0 == Turn::Player1 {if self.p1_end_ready { set_color(ctx, self.colors.p1_highlight)?} else { set_color(ctx, self.colors.p1_fade_highlight)?; };}
         self.enter_flip.add(make_param((36.0,34.0), (1.0,1.0), 0.0, (0.0, self.enter_flip_offset.1)));
         draw(ctx,&self.enter_flip, Point2::new(0.0, 0.0), 0.0)?;
         self.enter_flip.clear();
         set_color(ctx, WHITE)?; //In case there is a highlight active we want to reset
 
         //Prettier to have all static draws handled elsewhere
-        self.player_assets.draw_var(ctx, &self.p1, &self.p2, &self.p1_highlight, &self.p2_highlight)?;
+        self.player_assets.draw_var(ctx, &self.p1, &self.p2, &self.colors)?;
 
         Ok(())
     }
@@ -177,15 +177,22 @@ impl DicecoinMPC {
 
                 //We want to check for victory conditions when we get back to the first scene
                 if self.turnphase.0 == Turn::Player1 && self.turnphase.1 == Phase::Betting{ // This will execute at the top of every round
+                    //We always want to reset roll counts in a new round
+                    self.p1.clear_roll_result();
+                    self.p2.clear_roll_result();
+
+                    //This checks for victory conditions
                     if *self.p1.check_dice_total() == 0 { //Player 1 loses
                         self.game_winner = Turn::Player2;
                         self.quit_flag = true;
                         println!("Player 2 is the winner! Thank you for playing Dicecoin!");
+                        self.set_env_defaults();
                         return SceneReturn::Finished //Terminate the game
                     } else if *self.p2.check_dice_total() == 0 { //Player 2 loses
                         self.game_winner = Turn::Player1;
                         self.quit_flag = true;
                         println!("Player 1 is the winner! Thank you for playing Dicecoin!");
+                        self.set_env_defaults();
                         return SceneReturn::Finished //Terminate the game
                     }
                 }
@@ -230,8 +237,7 @@ impl DicecoinMPC {
             //Background
             background_dc_mpc: bg_spr,
             //Text
-            p1_highlight: Color::new(1.0, 0.0, 0.0, 1.0), //This is the highlight color to indicate something is p1
-            p2_highlight: Color::new(0.0, 0.0, 1.0, 1.0), //This is the highlight color to indicate something is p2
+            colors: ColorPalette::new()?,
             font: font1,
             //Sounds
             bad_boop: b_boop,

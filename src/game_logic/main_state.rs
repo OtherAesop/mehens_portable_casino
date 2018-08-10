@@ -92,11 +92,6 @@ impl<'a> event::EventHandler for MainState<'a>{
             if self.load_next {
                 self.load_next = false; //Reset the flag
                 self.scene_curr = self.scene_circle_iter.next().unwrap(); //Set in the next scene
-
-                //Here we know the new scene is the Game and we should set defaults in case it is a replay
-                if self.scene_curr == &SceneType::Game {
-                    self.mpc_dicecoin_game.set_env_defaults(); //Sets the environment to false for the new game
-                }
             }
 
             check_flags(ctx, &self.quit_flag);

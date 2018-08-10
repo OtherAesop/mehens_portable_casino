@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //My imports
+use game_logic::color_palette::ColorPalette;
 use game_logic::player::Player;
 use game_logic::utility_functions::{make_param};
 //Easy to handle things by enums
@@ -183,18 +184,18 @@ impl PlayerAssets {
     }
 
     //Draws player stuff on screen. This is ok because it is all fixed location and is not animated
-    pub fn draw_var(&mut self, ctx: &mut Context, p1: &Player, p2: &Player, p1_highlight: &Color, p2_highlight: &Color) -> GameResult<()> {
+    pub fn draw_var(&mut self, ctx: &mut Context, p1: &Player, p2: &Player, colors: &ColorPalette) -> GameResult<()> {
         let p1_rolling_dice = p1.check_rolling_dice();
         let p1_bet = p1.check_bet();
         let p2_rolling_dice = p2.check_rolling_dice();
         let p2_bet = p2.check_bet();
-        let p1_bet_coordinates = [(654.0,40.0),(716.0,40.0),(654.0,100.0),(716.0,100.0),(654.0,160.0),(716.0,160.0),(654.0,225.0),(716.0,225.0)];  //[d2,d4,d6,d8,d10,d10p,d12,d20] coordinates
-        let p2_bet_coordinates = [(33.0,343.0),(97.0,343.0),(33.0,405.0),(97.0,405.0),(33.0,468.0),(97.0,468.0),(33.0,531.0),(97.0,531.0)];  //[d2,d4,d6,d8,d10,d10p,d12,d20] coordinates
+        let p1_bet_coordinates = [(654.0,30.0),(716.0,30.0),(654.0,95.0),(716.0,95.0),(654.0,155.0),(716.0,155.0),(654.0,220.0),(716.0,220.0)];  //[d2,d4,d6,d8,d10,d10p,d12,d20] coordinates
+        let p2_bet_coordinates = [(33.0,338.0),(97.0,338.0),(33.0,400.0),(97.0,400.0),(33.0,463.0),(97.0,463.0),(33.0,526.0),(97.0,526.0)];  //[d2,d4,d6,d8,d10,d10p,d12,d20] coordinates
 
         //Roll Result
-        set_color(ctx, *p1_highlight); //By setting this we can add color on top of whatever we are drawing
+        set_color(ctx, colors.p1_roll_result); //By setting this we can add color on top of whatever we are drawing
         draw(ctx, &self.roll_result_p1, Point2::new(659.0,322.0), 0.0);
-        set_color(ctx, *p2_highlight);
+        set_color(ctx, colors.p2_roll_result);
         draw(ctx, &self.roll_result_p2, Point2::new(39.0,256.0), 0.0);
         set_color(ctx, WHITE); //Need to reset to default color after done  to avoid coloring something else
 
@@ -220,7 +221,7 @@ impl PlayerAssets {
         draw(ctx, &self.d20_text_p2, Point2::new(541.0,518.0), 0.0);
         set_color(ctx, WHITE); //Need to reset to default color after done to avoid coloring something else
 
-        //Draws the rolling dice on screen
+        //Draws the rolling dice on screen for P2
         //We use a positive offset so the direction goes right, towards the center
         let mut counter: f32 = 0.0;
         for dice in p2_rolling_dice.iter(){
@@ -235,13 +236,16 @@ impl PlayerAssets {
                 DiceType::D20 => &mut self.d20,
                  _               => panic!("Unhandled DiceType in draw_var"),
             };
-            draw_me.add(make_param((211.0 + (counter * ROLLING_OFFSET),281.0), (1.0,1.0), 0.0, (0.0, 0.0)));
+            set_color(ctx, colors.p2_dice);
+            draw_me.add(make_param((211.0 + (counter * ROLLING_OFFSET),276.0), (1.0,1.0), 0.0, (0.0, 0.0)));
             draw(ctx, draw_me, Point2::new(0.0,0.0), 0.0);
             draw_me.clear();
+            set_color(ctx, WHITE);
 
             counter += 1.0;
         }
 
+        //For P1
         //We use a negative offset so it goes right, towards the center
         counter = 0.0; //reset counter
         for dice in p1_rolling_dice.iter(){
@@ -256,15 +260,17 @@ impl PlayerAssets {
                 DiceType::D20 => &mut self.d20,
                 _               => panic!("Unhandled DiceType in draw_var"),
             };
-            draw_me.add(make_param((540.0 + (counter * ROLLING_OFFSET_NEG),281.0), (1.0,1.0), 0.0, (0.0, 0.0)));
+            set_color(ctx, colors.p1_dice);
+            draw_me.add(make_param((540.0 + (counter * ROLLING_OFFSET_NEG),276.0), (1.0,1.0), 0.0, (0.0, 0.0)));
             draw(ctx, draw_me, Point2::new(0.0, 0.0), 0.0);
             draw_me.clear();
+            set_color(ctx, WHITE);
 
             counter += 1.0;
         } //Remember to reset counter if you want to use it again
 
         //Draws the betted dice on screen
-        //Remember that SpriteBatches have that 3 line sequence we need
+        //Remember that SpriteBatches have that 3 line draw sequence we need
         let mut counter2: usize = 0; //reset counter
         for dice in p1_bet.iter() {
             let mut draw_me = match dice {
@@ -278,9 +284,11 @@ impl PlayerAssets {
                 DiceType::D20 => &mut self.d20,
                 _               => panic!("Unhandled DiceType in draw_var"),
             };
+            set_color(ctx, colors.p1_dice);
             draw_me.add(make_param((p1_bet_coordinates[counter2].0,p1_bet_coordinates[counter2].1), (1.0,1.0), 0.0, (0.0,0.0)));
             draw(ctx, draw_me, Point2::new(0.0,0.0), 0.0);
             draw_me.clear();
+            set_color(ctx, WHITE);
 
             counter2 += 1;
         }
@@ -298,9 +306,11 @@ impl PlayerAssets {
                 DiceType::D20 => &mut self.d20,
                 _               => panic!("Unhandled DiceType in draw_var"),
             };
+            set_color(ctx, colors.p2_dice);
             draw_me.add(make_param((p2_bet_coordinates[counter2].0,p2_bet_coordinates[counter2].1), (1.0,1.0), 0.0, (0.0,0.0)));
             draw(ctx, draw_me, Point2::new(0.0,0.0), 0.0);
             draw_me.clear();
+            set_color(ctx, WHITE);
 
             counter2 += 1;
         } //Remember to reset counter2 if you want to use it again

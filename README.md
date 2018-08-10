@@ -30,18 +30,19 @@ Please note these rules are currently in rough draft form and may be changed in 
 
 ##### Setup
 
-Each player starts the game with a set of Dicecoins (a D2, D4, D6, D8, D10, D10P, D12, and D20.) 
+Each player starts the game with a set of Dicecoins (a D2, D4, D6, D8, D10, D10P, D12, and D20.)
+
+Please note in the game each player begins with 3 sets.
 
 ##### Betting Phase
 
 At the beginning of a turn, moving counter-clockwise and ending with the dealer or house if one exists, each player will
-select between 1 and 2 of their Dicecoins and put them into their playing field at the center of the table while they
-bet at least one coin.
+select between 1 and 2 of their Dicecoins and put them into their playing field at the center of the table.
 
 ##### Raising Phase
 
 Turns will repeat like this until each player (and the house if applicable) have had a turn. Each player, beginning with
-the first player to take a turn and moving counter clockwise, will have the chance to raise additional Dicecoin. After 
+the first player to take a turn and moving counter clockwise, will have the chance to bet any number of Dicecoins. After 
 the last player raises or passes then whoever has bet the most dice will make one of the following calls.
 
 1) Coos (low)
@@ -57,12 +58,16 @@ If Pearls was selected then the player with the highest rolled value wins.
 The winner then takes the entire pool of Dicecoins. In the event of a tie then the winners evenly split the bet, with any 
 remainder going to the winner who is earliest in the playing order.
 
+Please note in the video game this is decided randomly.
+
 ##### Purchase Phase
 
 At this point each player may replenish their supply of Dicecoins by buying them at house prices but may never possess
 more Dicecoins then they began the game with. A player with no Dicecoins to bet, or who cannot wager the minimum bet after
 the Purchase Phase on a table loses. Players may choose to leave the table at this point with no penalty, leaving at any
 other point forfeits their bet and all the Dicecoins they began the game with.
+
+Please note this is not implemented in the game.
 
 ## Dicecoin Concept
 
@@ -109,6 +114,30 @@ to pretty much every file so it is my hope that you can click on any file and kn
 1) At least a vague idea of what the syntax means
 
 2) The intended purpose of the code
+
+### Game Architecture
+
+Most of the example projects I ran into in Ggez were messy assemblies of match statements with little to no documentation. Not
+only is this not expandable, it is ugly. To get past these hurdles I designed my game in such a way that with minimal fuss
+you can expand, add in scenes, delete scenes, and so forth by using enum handles (somewhat like the way Unity allows you to build
+your game scenes together.)
+
+To support this the game is divided into four distinct sections
+
+1) game_logic - This is where all the code that controls the flow of scenes is located. By using the SceneType enum handle,
+we are able to define a Vec<SceneType> such that MainState will cycle through them infinitely until it encounters a SceneType::Exit
+or you just exit out.
+
+2) scenes - This is where most of Ggez is actually called and used to implement the game scenes. Supporting logic files are found
+in game_logic
+
+3) gambling - This defines a dice rolling suite that can be used to create Dicecoins with documented guards and limitations
+
+4) assets - This contains all of the game design concept art, design photos, etc (except the Dicecoin STLs which are in the release
+binary) in the hopes that it sheds light on the development process.
+
+The game essentially functions like a loop within a loop. MainState operates and controls the game scene flow loop while the games themselves have loops
+within them that allow you to actually *do* something.
 
 ### Gameplay Instructions
 

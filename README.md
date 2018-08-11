@@ -171,7 +171,7 @@ P - Press this to gamble on Pearls (The shift key of the player who has the righ
 Download the project into an IDE of your choice that supports Rust and run the cargo command 'cargo run --release'
 I recommend IntelliJ Community Edition or CLion. Visual Studio is untested.
 
-Download the precompiled executable release [here](https://services.github.com/on-demand/github-cli/clone-repo-cli "How to Clone a Repo in Linux") and run it, being careful that all the files are in the same folder.
+Download the precompiled executable release [here](https://github.com/MushuYoWushu/mehens_portable_casino/releases "Mehen's Portable Casino Release Download") and run it, being careful that all the files are in the same folder.
 Please note the Dicecoin STL files must be downloaded through that zip file in order to reduce the download cost of cloning
 
 #### Mac
@@ -183,7 +183,7 @@ enough to do a test run for me, this is unsupported.
 
 The same IDE instructions as for Windows apply.
 
-Follow [these beautiful instructions](https://github.com/MushuYoWushu/mehens_portable_casino/releases "Mehen's Portable Casino Release Download")
+Follow [these beautiful instructions](https://services.github.com/on-demand/github-cli/clone-repo-cli "How to Clone a Repo in Linux")
 courtesy of GitHub to clone the repository and then type 'cargo run --release' 
 
 ## Completed Features

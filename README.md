@@ -168,7 +168,10 @@ P - Press this to gamble on Pearls (The shift key of the player who has the righ
 
 #### Windows
 
-Download the project into an IDE of your choice that supports Rust and run the cargo command 'cargo run --release'
+Download the project into an IDE of your choice that supports Rust and run the cargo command 'cargo run --release'. If you
+want to play the debug build then use the command 'cargo run' however this is unrecommended since there are known issues on
+the debug build.
+
 I recommend IntelliJ Community Edition or CLion. Visual Studio is untested.
 
 Download the precompiled executable release [here](https://github.com/MushuYoWushu/mehens_portable_casino/releases "Mehen's Portable Casino Release Download") and run it, being careful that all the files are in the same folder.
@@ -186,6 +189,23 @@ The same IDE instructions as for Windows apply.
 Follow [these beautiful instructions](https://services.github.com/on-demand/github-cli/clone-repo-cli "How to Clone a Repo in Linux")
 courtesy of GitHub to clone the repository and then type 'cargo run --release' 
 
+### Inspiration
+
+These two projects, this standard example, and an 8 month long Dnd campaign were inspirations and references for this project
+and for ggez syntax tutorials.
+
+The Wizzer of Oz
+
+https://github.com/maccam912/thewizzerofoz
+
+Llamassacre
+
+https://github.com/rap2hpoutre/llamassacre
+
+Text-Cached Example
+
+https://github.com/ggez/ggez/blob/master/examples/text_cached.rs
+
 ## Completed Features
 
 -Dicecoin Game
@@ -195,3 +215,4 @@ courtesy of GitHub to clone the repository and then type 'cargo run --release'
 ## Planned Features
 
 N/A
+

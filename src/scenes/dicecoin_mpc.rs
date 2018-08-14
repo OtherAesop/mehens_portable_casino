@@ -70,6 +70,7 @@ pub struct DicecoinMPC {
     p1_end_ready: bool, //Signifies the player is allowed to end their turn
     p2_end_ready: bool,
     winner: Turn,
+    round_over: bool, //Since no key down event will be triggered when p2's turn is skipped we must check for when that happens so we can look for victory conditions.
     //P1
     betting_phase_flag_p1: bool,
     raising_phase_flag_p1: bool,
@@ -174,8 +175,10 @@ impl DicecoinMPC {
                 //We can guarantee that after a transition there must be a player action so all progression conditions are implied not met.
                 self.set_env_false();
 
-                //We want to check for victory conditions when we get back to the first scene
-                if self.turnphase.0 == Turn::Player1 && self.turnphase.1 == Phase::Betting{ // This will execute at the top of every round
+                //We want to check for victory conditions when the round is over, but possibly before any turns (namely Player 2) is skipped
+                if self.round_over {
+                    //Gotta reset this
+                    self.round_over = false;
                     //We always want to reset roll counts in a new round
                     self.p1.clear_roll_result();
                     self.p2.clear_roll_result();
@@ -260,6 +263,7 @@ impl DicecoinMPC {
             p1_end_ready: false, //Signifies the player is allowed to end their turn
             p2_end_ready: false,
             winner: Turn::Player1, //Should never actually be checked before it is overwritten
+            round_over: false, //Since no key down event will be triggered when p2's turn is skipped we must check for when that happens so we can look for victory conditions
             //P1
             betting_phase_flag_p1: false,
             raising_phase_flag_p1: false,
@@ -273,6 +277,8 @@ impl DicecoinMPC {
         Ok(x)
     }
 
+    //Checks for player victory and sets environment appropriately
+
     //Sets environment to how it should be at the start of a new game
     pub fn set_env_defaults(&mut self) {
         self.p1.set_defaults();
@@ -284,6 +290,7 @@ impl DicecoinMPC {
         self.enter_flip_offset = (0.0,0.0);
         self.go_up_enter_flip = false;
         self.winner = Turn::Player1;
+        self.round_over = false;
         self.highest_roller = Turn::Player2;
         self.game_winner = Turn::Player1;
     }
@@ -441,6 +448,9 @@ impl DicecoinMPC {
                                 if !win(&mut self.p1, &mut self.p2, &self.winner) { //Note: win handles giving the dice to winners
                                     println!("Overflow occurred, but guards prevented bad game flow. Check your design.");
                                 }
+                                self.p1.clear_roll_result();
+                                self.p2.clear_roll_result();
+                                self.round_over = true;
                                 self.p1_end_ready = false;
                                 SceneReturn::Finished
                             } else { //Player may not end their turn
@@ -512,6 +522,7 @@ impl DicecoinMPC {
                 //This player gets their turn skipped
                 //because they were not the highest roller
                 if self.highest_roller != Turn::Player2 {
+
                     SceneReturn::Finished
                 } else { //This player is the highest roller and gets to go
                     match keycode {
@@ -543,6 +554,9 @@ impl DicecoinMPC {
                                 if !win(&mut self.p1, &mut self.p2, &self.winner) { //Note: win handles giving the dice to winners
                                     println!("Overflow occurred, but guards prevented bad game flow. Check your design.");
                                 }
+                                self.p1.clear_roll_result();
+                                self.p2.clear_roll_result();
+                                self.round_over = true;
                                 self.p2_end_ready = false;
                                 SceneReturn::Finished
                             } else { //Player may not end their turn

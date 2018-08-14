@@ -1,6 +1,6 @@
 [package]
 name = "mehens_portable_casino"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["MushuYoWushu <iangore@gmail.com>"]
 
 [dependencies]

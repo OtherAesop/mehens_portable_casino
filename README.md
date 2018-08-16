@@ -119,12 +119,12 @@ to pretty much every file so it is my hope that you can click on any file and kn
 
 Most of the example projects I ran into in Ggez were messy assemblies of match statements with little to no documentation. Not
 only is this not expandable, it is ugly. To get past these hurdles I designed my game in such a way that with minimal fuss
-you can expand, add in scenes, delete scenes, and so forth by using enum handles (somewhat like the way Unity allows you to build
+you can expand, add in scenes, delete scenes, and change execution ordering by using enum handles (somewhat like the way Unity allows you to build
 your game scenes together.)
 
 To support this the game is divided into four distinct sections
 
-1) game_logic - This is where all the code that controls the flow of scenes is located. By using the SceneType enum handle,
+1) game_logic - This is where all the code that controls the flow of scenes and accessory structs is located. By using the SceneType enum handle,
 we are able to define a Vec<SceneType> such that MainState will cycle through them infinitely until it encounters a SceneType::Exit
 or you just exit out.
 
@@ -134,10 +134,22 @@ in game_logic
 3) gambling - This defines a dice rolling suite that can be used to create Dicecoins with documented guards and limitations
 
 4) assets - This contains all of the game design concept art, design photos, etc (except the Dicecoin STLs which are in the release
-binary) in the hopes that it sheds light on the development process.
+binary) in the hopes that it is useful in some manner.
 
 The game essentially functions like a loop within a loop. MainState operates and controls the game scene flow loop while the games themselves have loops
-within them that allow you to actually *do* something.
+within them that allow you to actually *do* something. Adding in new stuff should basically boil down to these steps.
+
+1) Creating a scene struct that implements 'event::EventHandler', though you can change the parameters since this is not an actual trait implementation. Make sure
+you have some way for the game to terminate! The default method to do this is through 'key_down_event', but you can expand MainState and the game structs to handle
+more termination conditions as you need by expanding the return values of the functions called in MainState.
+
+2) Adding the relevant function calls (and initializing statements) to the scene struct into MainState inside of 'event::EventHandler' trait implementation's match statements with whatever
+enum SceneType handle you think is most appropriate.
+
+3) Adding your new scene into the game loop execution by adding it into the scenes created in 'make_scenes' inside of 'game_logic::utility_functions' 
+
+By default MainState only checks for transitions on key_down_event, but you can expand this to trigger on any of the provided event::EventHandler
+functions by adding in the return values as needed to update or draw and then handling them appropriately. 
 
 ### Gameplay Instructions
 
@@ -168,14 +180,14 @@ P - Press this to gamble on Pearls (The shift key of the player who has the righ
 
 #### Windows
 
-Download the project into an IDE of your choice that supports Rust and run the cargo command 'cargo run --release'. If you
-want to play the debug build then use the command 'cargo run' however this is unrecommended since there are known issues on
-the debug build.
+Clone the project into an IDE of your choice that supports Rust and run the cargo command 'run --release' however your IDE 
+(which is probably IntelliJ or Clion) supports it. If you want to play the debug build then use the command 
+'cargo run' however this is unrecommended since there are known issues on the debug build.
 
 I recommend IntelliJ Community Edition or CLion. Visual Studio is untested.
 
 Download the precompiled executable release [here](https://github.com/MushuYoWushu/mehens_portable_casino/releases "Mehen's Portable Casino Release Download") and run it, being careful that all the files are in the same folder.
-Please note the Dicecoin STL files must be downloaded through that zip file in order to reduce the download cost of cloning
+Please note the Dicecoin STL files must be downloaded through that zip file in order to reduce the download cost of cloning a repo
 
 #### Mac
 
@@ -187,7 +199,13 @@ enough to do a test run for me, this is unsupported.
 The same IDE instructions as for Windows apply.
 
 Follow [these beautiful instructions](https://services.github.com/on-demand/github-cli/clone-repo-cli "How to Clone a Repo in Linux")
-courtesy of GitHub to clone the repository and then type 'cargo run --release' 
+courtesy of GitHub to clone the repository and then type 'cargo run --release' inside the correct directory.
+
+#### SDL2
+
+Note that this should run fine on most non-jurassic period computers, but if you try and run the executable directly from the target directory
+it will expect that the directory contains a folder named 'resources' with all the games assets and an SDL2.dll which is downloadable from the Windows
+release page inside of the game's zip.
 
 ### Inspiration
 

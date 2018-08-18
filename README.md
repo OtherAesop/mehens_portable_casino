@@ -71,7 +71,7 @@ Please note this is not implemented in the game.
 
 ## Dicecoin Concept
 
-Dicecoin is licensed to you under the GNU General Public License as stated in the source file.
+While this program is licensed to you under the GPL the Dicecoin Concept is not.
 
 A Dicecoin is a polyhedral dice that has different values on each side. These values represent the worth, in DC of a coin
 after it is rolled. Dice can really only be practical up to a certain number of faces in a physical form so the standard

@@ -17,6 +17,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+## Dicecoin License
+
+The expression of the Dicecoin concept here is licensed under the GPL
+
 # Mehen's Portable Casino
 
 This is a small 2D gambling game made using the Good Game Easily (Ggez) engine that implements the Dicecoin Game as
@@ -71,7 +75,7 @@ Please note this is not implemented in the game.
 
 ## Dicecoin Concept
 
-While this program is licensed to you under the GPL the Dicecoin Concept is not.
+While this program is licensed to you under the GPL the Dicecoin concept is not.
 
 A Dicecoin is a polyhedral dice that has different values on each side. These values represent the worth, in DC of a coin
 after it is rolled. Dice can really only be practical up to a certain number of faces in a physical form so the standard

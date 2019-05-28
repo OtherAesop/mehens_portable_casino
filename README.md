@@ -2,7 +2,7 @@
 
 mehens_portable_casino. A gambling game made using ggez and Dicecoin
 
-Copyright (C) 2018  Ian L. Gore
+Copyright (C) 2018  MushuYoWushu
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

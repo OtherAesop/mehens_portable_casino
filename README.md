@@ -2,7 +2,7 @@
 
 mehens_portable_casino. A gambling game made using ggez and Dicecoin
 
-Copyright (C) 2018  MushuYoWushu
+Copyright (C) 2018  Ian Gore
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -190,7 +190,7 @@ Clone the project into an IDE of your choice that supports Rust and run the carg
 
 I recommend IntelliJ Community Edition or CLion. Visual Studio is untested.
 
-Download the precompiled executable release [here](https://github.com/MushuYoWushu/mehens_portable_casino/releases "Mehen's Portable Casino Release Download") and run it, being careful that all the files are in the same folder.
+Download the precompiled executable release [here](https://github.com/Ian Gore/mehens_portable_casino/releases "Mehen's Portable Casino Release Download") and run it, being careful that all the files are in the same folder.
 Please note the Dicecoin STL files must be downloaded through that zip file in order to reduce the download cost of cloning a repo
 
 #### Mac

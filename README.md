@@ -24,6 +24,8 @@ described below. This game is designed to be short, small, but well implemented 
 I also intend this to be a showcase of a concept that I came up with of semi-randomized currency. 
 Unfortunately the concept does not have any good economic usages, but was a fun project.
 
+[](assets/Gameboard.png)
+
 ## Dicecoin Game
 
 Please note these rules are currently in rough draft form and may be changed in the future.
@@ -174,6 +176,7 @@ Right Shift - Press this to end your turn, this will be greyed out when you are 
 #### Controls Coos/Pearls
 
 C - Press this to gamble on Coos (The shift key of the player who has the right to make this move will be colored)
+
 P - Press this to gamble on Pearls (The shift key of the player who has the right to make this move will be colored)
 
 ### Installation

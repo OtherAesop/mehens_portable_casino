@@ -2,7 +2,7 @@
 
 mehens_portable_casino. A gambling game made using ggez and Dicecoin
 
-Copyright (C) 2018  Ian L. Gore
+Copyright (C) 2018  Ian Gore
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,6 +16,10 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+## Dicecoin License
+
+The expression of the Dicecoin concept here is licensed under the GPL
 
 # Mehen's Portable Casino
 
@@ -73,7 +77,7 @@ Please note this is not implemented in the game.
 
 ## Dicecoin Concept
 
-Dicecoin is licensed to you under the GNU General Public License as stated in the source file.
+While this program is licensed to you under the GPL the Dicecoin concept is not.
 
 A Dicecoin is a polyhedral dice that has different values on each side. These values represent the worth, in DC of a coin
 after it is rolled. Dice can really only be practical up to a certain number of faces in a physical form so the standard
@@ -189,7 +193,7 @@ Clone the project into an IDE of your choice that supports Rust and run the carg
 
 I recommend IntelliJ Community Edition or CLion. Visual Studio is untested.
 
-Download the precompiled executable release [here](https://github.com/MushuYoWushu/mehens_portable_casino/releases "Mehen's Portable Casino Release Download") and run it, being careful that all the files are in the same folder.
+Download the precompiled executable release [here](https://github.com/Ian Gore/mehens_portable_casino/releases "Mehen's Portable Casino Release Download") and run it, being careful that all the files are in the same folder.
 Please note the Dicecoin STL files must be downloaded through that zip file in order to reduce the download cost of cloning a repo
 
 #### Mac

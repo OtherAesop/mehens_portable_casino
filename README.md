@@ -28,7 +28,7 @@ described below. This game is designed to be short, small, but well implemented 
 I also intend this to be a showcase of a concept that I came up with of semi-randomized currency. 
 Unfortunately the concept does not have any good economic usages, but was a fun project.
 
-[](https://github.com/OtherAesop/mehens_portable_casino/blob/master/assets/Gameboard.png)
+![](https://github.com/OtherAesop/mehens_portable_casino/blob/master/assets/Gameboard.png)
 
 ## Dicecoin Game
 
